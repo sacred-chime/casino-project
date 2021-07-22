@@ -1,9 +1,9 @@
 ## Group C
 
 # Members:
-Connor Strohecker - cms668@drexel.edu 
-Leland Ly - lsl47@drexel.edu 
-Ryan Do - rd586@drexel.edu 
+Connor Strohecker - cms668@drexel.edu  
+Leland Ly - lsl47@drexel.edu  
+Ryan Do - rd586@drexel.edu  
 
 # Ideas:
 1. Online Casino
