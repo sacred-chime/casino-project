@@ -6,7 +6,6 @@ Leland Ly - lsl47@drexel.edu
 Ryan Do - rd586@drexel.edu  
 Harrison Nguyen - hxn26@drexel.edu  
 Mike Bogert - mib39@drexel.edu  
-
 ## Technologies
 - React
 - Typescript
