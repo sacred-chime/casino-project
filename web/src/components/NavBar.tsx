@@ -14,6 +14,7 @@ import NextLink from "next/link";
 import React from "react";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
+import { moneyFormatter } from "../utils/moneyFormatter";
 
 interface NavBarProps {}
 
@@ -45,6 +46,9 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
   else {
     body = (
       <Flex alignItems="center">
+        <NextLink href="/add-funds">
+          <Link mr={5}>{moneyFormatter(data.me.money)}</Link>
+        </NextLink>
         <Box mr={2}>{data.me.username}</Box>
         <Button
           onClick={() => {
@@ -61,7 +65,9 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
 
   return (
     <Flex bg="skyblue" p={4} alignItems="center">
-      <Box>Big Boy Gamble Time</Box>
+      <NextLink href="/">
+        <Link mr={2}>Big Boy Gamble Time</Link>
+      </NextLink>
       <Box ml={"auto"}>
         <Center>
           <Menu>
@@ -73,8 +79,12 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
               Games
             </MenuButton>
             <MenuList backgroundColor="steelblue">
-              <MenuItem color="white">Slots</MenuItem>
-              <MenuItem color="white">Blackjack</MenuItem>
+              <NextLink href="/slots">
+                <MenuItem color="white">Slots</MenuItem>
+              </NextLink>
+              <NextLink href="/blackjack">
+                <MenuItem color="white">Blackjack</MenuItem>
+              </NextLink>
             </MenuList>
           </Menu>
         </Center>

@@ -1,0 +1,5 @@
+mutation changeFunds($fundDelta: Float!) {
+  changeFunds(fundDelta: $fundDelta) {
+    ...StandardUserReponse
+  }
+}
