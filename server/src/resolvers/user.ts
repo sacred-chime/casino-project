@@ -1,6 +1,5 @@
 import { EntityManager } from "@mikro-orm/postgresql";
 import argon2 from "argon2";
-import { sendEmail } from "../utils/sendEmail";
 import {
   Arg,
   Ctx,
@@ -10,12 +9,13 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
+import { v4 } from "uuid";
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
 import { User } from "../entities/User";
 import { MyContext } from "../types";
+import { sendEmail } from "../utils/sendEmail";
 import { validateRegister } from "../utils/validateRegister";
 import { UsernamePasswordInput } from "./UsernamePasswordInput";
-import { v4 } from "uuid";
 
 @ObjectType()
 class FieldError {
@@ -152,6 +152,7 @@ export class UserResolver {
           password: hashedPassword,
           created_at: new Date(),
           updated_at: new Date(),
+          money: 0.0,
         })
         .returning("*");
       user = result[0];
@@ -236,5 +237,53 @@ export class UserResolver {
         resolve(true);
       })
     );
+  }
+
+  @Mutation(() => UserResponse)
+  async changeFunds(
+    @Arg("fundDelta") fundDelta: number,
+    @Ctx() { req, em }: MyContext
+  ): Promise<UserResponse> {
+    if (!req.session.userID) {
+      return {
+        errors: [
+          {
+            field: "id",
+            message: "user not logged in",
+          },
+        ],
+      };
+    }
+
+    const user = await em.findOne(User, { id: req.session.userID });
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: "id",
+            message: "user does not exist",
+          },
+        ],
+      };
+    }
+
+    const currentMoney = Number(user.money);
+    const newMoney = Math.round((currentMoney + fundDelta) * 100) / 100;
+
+    if (newMoney > 99999999.99) {
+      return {
+        errors: [
+          {
+            field: "money",
+            message: "that's too much money",
+          },
+        ],
+      };
+    }
+
+    user.money = newMoney;
+    await em.persistAndFlush(user);
+
+    return { user };
   }
 }

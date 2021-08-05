@@ -26,4 +26,8 @@ export class User {
 
   @Property({ type: "text" })
   password!: string;
+
+  @Field()
+  @Property({ columnType: "decimal(10,2)" })
+  money: number = 0.0;
 }

@@ -27,6 +27,7 @@ export type Mutation = {
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
+  changeFunds: UserResponse;
 };
 
 
@@ -51,6 +52,11 @@ export type MutationLoginArgs = {
   usernameOrEmail: Scalars['String'];
 };
 
+
+export type MutationChangeFundsArgs = {
+  fundDelta: Scalars['Float'];
+};
+
 export type Query = {
   __typename?: 'Query';
   hello: Scalars['String'];
@@ -64,6 +70,7 @@ export type User = {
   updatedAt: Scalars['String'];
   username: Scalars['String'];
   email: Scalars['String'];
+  money: Scalars['Float'];
 };
 
 export type UserResponse = {
@@ -85,7 +92,7 @@ export type StandardErrorFragment = (
 
 export type StandardUserFragment = (
   { __typename?: 'User' }
-  & Pick<User, 'id' | 'username'>
+  & Pick<User, 'id' | 'username' | 'money'>
 );
 
 export type StandardUserReponseFragment = (
@@ -97,6 +104,19 @@ export type StandardUserReponseFragment = (
     { __typename?: 'User' }
     & StandardUserFragment
   )> }
+);
+
+export type ChangeFundsMutationVariables = Exact<{
+  fundDelta: Scalars['Float'];
+}>;
+
+
+export type ChangeFundsMutation = (
+  { __typename?: 'Mutation' }
+  & { changeFunds: (
+    { __typename?: 'UserResponse' }
+    & StandardUserReponseFragment
+  ) }
 );
 
 export type ChangePasswordMutationVariables = Exact<{
@@ -179,6 +199,7 @@ export const StandardUserFragmentDoc = gql`
     fragment StandardUser on User {
   id
   username
+  money
 }
     `;
 export const StandardUserReponseFragmentDoc = gql`
@@ -192,6 +213,17 @@ export const StandardUserReponseFragmentDoc = gql`
 }
     ${StandardErrorFragmentDoc}
 ${StandardUserFragmentDoc}`;
+export const ChangeFundsDocument = gql`
+    mutation changeFunds($fundDelta: Float!) {
+  changeFunds(fundDelta: $fundDelta) {
+    ...StandardUserReponse
+  }
+}
+    ${StandardUserReponseFragmentDoc}`;
+
+export function useChangeFundsMutation() {
+  return Urql.useMutation<ChangeFundsMutation, ChangeFundsMutationVariables>(ChangeFundsDocument);
+};
 export const ChangePasswordDocument = gql`
     mutation ChangePassword($token: String!, $newPassword: String!) {
   changePassword(token: $token, newPassword: $newPassword) {
