@@ -14,6 +14,7 @@ import NextLink from "next/link";
 import React from "react";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
+import { moneyFormatter } from "../utils/moneyFormatter";
 
 interface NavBarProps {}
 
@@ -45,6 +46,9 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
   else {
     body = (
       <Flex alignItems="center">
+        <NextLink href="/add-funds">
+          <Link mr={5}>{moneyFormatter(data.me.money)}</Link>
+        </NextLink>
         <Box mr={2}>{data.me.username}</Box>
         <Button
           onClick={() => {
