@@ -12,10 +12,18 @@ import Redis from "ioredis";
 import session from "express-session";
 import connectRedis from "connect-redis";
 import cors from "cors";
+import { User } from "./entities/User";
 
 const main = async () => {
   const orm = await MikroORM.init(mikroConfig);
   await orm.getMigrator().up();
+
+  //Set user "connor" to $100
+  // const user = await orm.em.findOne(User, { id: 2 });
+  // if (user) {
+  //   user.money = 100.0;
+  //   orm.em.persistAndFlush(user);
+  // }
 
   const app = express();
 
