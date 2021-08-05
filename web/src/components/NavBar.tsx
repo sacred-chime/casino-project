@@ -61,7 +61,9 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
 
   return (
     <Flex bg="skyblue" p={4} alignItems="center">
-      <Box>Big Boy Gamble Time</Box>
+      <NextLink href="/">
+        <Link mr={2}>Big Boy Gamble Time</Link>
+      </NextLink>
       <Box ml={"auto"}>
         <Center>
           <Menu>
@@ -73,8 +75,12 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
               Games
             </MenuButton>
             <MenuList backgroundColor="steelblue">
-              <MenuItem color="white">Slots</MenuItem>
-              <MenuItem color="white">Blackjack</MenuItem>
+              <NextLink href="/slots">
+                <MenuItem color="white">Slots</MenuItem>
+              </NextLink>
+              <NextLink href="/blackjack">
+                <MenuItem color="white">Blackjack</MenuItem>
+              </NextLink>
             </MenuList>
           </Menu>
         </Center>
