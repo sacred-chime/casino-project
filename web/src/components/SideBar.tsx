@@ -40,7 +40,7 @@ export const SideBar: React.FC<{}> = ({}) => {
           <Icon
             as={MdKeyboardArrowRight}
             ml="auto"
-            transform={casino.isOpen && "rotate(90deg)"}
+            transform={casino.isOpen ? "rotate(90deg)" : undefined}
           />
         </NavItem>
         <Collapse in={casino.isOpen}>
@@ -65,7 +65,7 @@ export const SideBar: React.FC<{}> = ({}) => {
           <Icon
             as={MdKeyboardArrowRight}
             ml="auto"
-            transform={miscGames.isOpen && "rotate(90deg)"}
+            transform={miscGames.isOpen ? "rotate(90deg)" : undefined}
           />
         </NavItem>
         <Collapse in={miscGames.isOpen}>
