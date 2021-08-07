@@ -5,7 +5,7 @@ import {
   Collapse,
   Flex,
   Icon,
-  Spacer,
+  Text,
   useDisclosure,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
@@ -118,7 +118,7 @@ export const SideBar: React.FC<{}> = ({}) => {
                 color="gray.500"
                 width={"150px"}
               >
-                Add Funds
+                <Text color={"gray.300"}>Add Funds</Text>
               </Button>
             </NextLink>
           </Center>
