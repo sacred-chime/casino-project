@@ -1,4 +1,17 @@
-import { Box, Button, Flex, Heading, Link } from "@chakra-ui/react";
+import { ChevronDownIcon } from "@chakra-ui/icons";
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  keyframes,
+  Link,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  usePrefersReducedMotion,
+} from "@chakra-ui/react";
 import NextLink from "next/link";
 import React from "react";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
@@ -10,6 +23,11 @@ export const NavBar: React.FC<{}> = ({}) => {
   const [{ data, fetching }] = useMeQuery({
     pause: isServer(),
   });
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  const animation = prefersReducedMotion
+    ? undefined
+    : `${flicker} steps(100) var(--interval) 1s infinite`;
 
   let body = null;
 
@@ -21,12 +39,12 @@ export const NavBar: React.FC<{}> = ({}) => {
     body = (
       <Flex alignItems="center">
         <NextLink href="/register">
-          <Button mr={5} variant="solid" colorScheme="yellow">
+          <Button mr={5} variant="solid" colorScheme="yellow" width={"120px"}>
             register
           </Button>
         </NextLink>
         <NextLink href="/login">
-          <Button variant="ghost" mr={2}>
+          <Button variant="ghost" mr={2} width={"120px"}>
             login
           </Button>
         </NextLink>
@@ -36,18 +54,35 @@ export const NavBar: React.FC<{}> = ({}) => {
   // user is logged in
   else {
     body = (
-      <Flex alignItems="center">
-        <Box mr={5}>{moneyFormatter(data.me.money)}</Box>
-        <Box mr={2}>{data.me.username}</Box>
-        <Button
-          onClick={() => {
-            logout();
-          }}
-          isLoading={logoutFetching}
-          variant="ghost"
-        >
-          logout
-        </Button>
+      <Flex alignItems="center" textAlign={"center"}>
+        <Box mr={5} width={"120px"} color={"gray.400"} fontWeight={"semibold"}>
+          {moneyFormatter(data.me.money)}
+        </Box>
+        <Menu>
+          <MenuButton
+            mr={2}
+            width={"120px"}
+            as={Button}
+            rightIcon={<ChevronDownIcon />}
+          >
+            Account
+          </MenuButton>
+          <MenuList minW="0" w={"200px"}>
+            <MenuItem isDisabled={true} color={"white"}>
+              <Box ml={"auto"}>{data.me.username}</Box>
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                logout();
+              }}
+              isLoading={logoutFetching}
+              color={"gray.500"}
+              variant="ghost"
+            >
+              <Box ml={"auto"}>logout</Box>
+            </MenuItem>
+          </MenuList>
+        </Menu>
       </Flex>
     );
   }
@@ -64,15 +99,35 @@ export const NavBar: React.FC<{}> = ({}) => {
       <Flex paddingLeft={"35px"}>
         <NextLink href="/">
           <Link mr={2}>
-            <Heading as={"h2"} size={"lg"}>
+            <Heading
+              as={"h2"}
+              size={"lg"}
+              sx={{ "--interval": "1s" }}
+              color="lightyellow"
+              textShadow="
+              0 0 5px yellow,
+              0 0 10px orange,
+              0 0 20px brown,
+              0 0 40px purple"
+              filter={"saturate(60%)"}
+              willChange={"filter, color"}
+              animation={animation}
+            >
               BIG BOY GAMBLE TIME
             </Heading>
           </Link>
         </NextLink>
       </Flex>
-      <Box ml={"auto"} paddingRight={"4vw"}>
+      <Box ml={"auto"} paddingRight={"2.6vw"}>
         {body}
       </Box>
     </Flex>
   );
 };
+
+const flicker = keyframes`
+    50% {
+      color: white;
+      filter: saturate(200%) hue-rotate(20deg);
+    }
+  `;

@@ -10,43 +10,9 @@ import {
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 import React from "react";
+import { FaDollarSign } from "react-icons/fa";
 import { GiCherry } from "react-icons/gi";
 import { MdGamepad, MdKeyboardArrowRight } from "react-icons/md";
-import { FaDollarSign } from "react-icons/fa";
-
-const NavItem = (props: any) => {
-  const { icon, children, ...rest } = props;
-  return (
-    <Flex
-      align="center"
-      px="4"
-      pl="4"
-      py="3"
-      cursor="pointer"
-      color={"gray.400"}
-      _hover={{
-        bg: "gray.900",
-        color: "gray.200",
-      }}
-      role="group"
-      fontWeight="semibold"
-      transition=".15s ease"
-      {...rest}
-    >
-      {icon && (
-        <Icon
-          mr="2"
-          boxSize="4"
-          _groupHover={{
-            color: "gray.300",
-          }}
-          as={icon}
-        />
-      )}
-      {children}
-    </Flex>
-  );
-};
 
 export const SideBar: React.FC<{}> = ({}) => {
   const casino = useDisclosure();
@@ -131,5 +97,39 @@ export const SideBar: React.FC<{}> = ({}) => {
         </Box>
       </Flex>
     </Box>
+  );
+};
+
+const NavItem = (props: any) => {
+  const { icon, children, ...rest } = props;
+  return (
+    <Flex
+      align="center"
+      px="4"
+      pl="4"
+      py="3"
+      cursor="pointer"
+      color={"gray.400"}
+      _hover={{
+        bg: "gray.900",
+        color: "gray.200",
+      }}
+      role="group"
+      fontWeight="semibold"
+      transition=".15s ease"
+      {...rest}
+    >
+      {icon && (
+        <Icon
+          mr="2"
+          boxSize="4"
+          _groupHover={{
+            color: "gray.300",
+          }}
+          as={icon}
+        />
+      )}
+      {children}
+    </Flex>
   );
 };
