@@ -5,12 +5,13 @@ import {
   Collapse,
   Flex,
   Icon,
+  Spacer,
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 import React from "react";
-import { FaDollarSign } from "react-icons/fa";
+import { FaCcVisa, FaCcMastercard, FaBitcoin } from "react-icons/fa";
 import { GiCherry } from "react-icons/gi";
 import { MdGamepad, MdKeyboardArrowRight } from "react-icons/md";
 
@@ -90,9 +91,13 @@ export const SideBar: React.FC<{}> = ({}) => {
           </Center>
 
           <Center pt={"15px"}>
-            <Icon w={6} h={6} color="yellow" as={FaDollarSign} />
-            <Icon w={6} h={6} color="yellow" as={FaDollarSign} />
-            <Icon w={6} h={6} color="yellow" as={FaDollarSign} />
+            <Flex width={"125px"}>
+              <Icon w={8} h={8} color="goldenrod" as={FaCcVisa} />
+              <Spacer />
+              <Icon w={8} h={8} color="goldenrod" as={FaCcMastercard} />
+              <Spacer />
+              <Icon w={8} h={8} color="goldenrod" as={FaBitcoin} />
+            </Flex>
           </Center>
         </Box>
       </Flex>
