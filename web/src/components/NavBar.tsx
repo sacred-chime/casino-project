@@ -63,11 +63,12 @@ export const NavBar: React.FC<{}> = ({}) => {
             mr={2}
             width={"120px"}
             as={Button}
+            color={"gray.300"}
             rightIcon={<ChevronDownIcon />}
           >
             Account
           </MenuButton>
-          <MenuList minW="0" w={"200px"}>
+          <MenuList minW="0" w={"190px"}>
             <MenuItem isDisabled={true} color={"white"}>
               <Box ml={"auto"}>{data.me.username}</Box>
             </MenuItem>
