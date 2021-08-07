@@ -119,7 +119,7 @@ export const NavBar: React.FC<{}> = ({}) => {
           </Link>
         </NextLink>
       </Flex>
-      <Box ml={"auto"} paddingRight={"2.6vw"}>
+      <Box ml={"auto"} paddingRight={"2.2vw"}>
         {body}
       </Box>
     </Flex>
