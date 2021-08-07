@@ -4,13 +4,11 @@ import {
   Button,
   Flex,
   Heading,
-  keyframes,
   Link,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  usePrefersReducedMotion,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 import React from "react";
@@ -23,11 +21,6 @@ export const NavBar: React.FC<{}> = ({}) => {
   const [{ data, fetching }] = useMeQuery({
     pause: isServer(),
   });
-  const prefersReducedMotion = usePrefersReducedMotion();
-
-  const animation = prefersReducedMotion
-    ? undefined
-    : `${flicker} steps(100) var(--interval) 1s infinite`;
 
   let body = null;
 
@@ -103,32 +96,20 @@ export const NavBar: React.FC<{}> = ({}) => {
             <Heading
               as={"h2"}
               size={"lg"}
-              sx={{ "--interval": "1s" }}
               color="lightyellow"
               textShadow="
-              0 0 5px yellow,
-              0 0 10px orange,
-              0 0 20px brown,
-              0 0 40px purple"
+              0 0 7px yellow,
+              0 0 14px orange"
               filter={"saturate(60%)"}
-              willChange={"filter, color"}
-              animation={animation}
             >
               BIG BOY GAMBLE TIME
             </Heading>
           </Link>
         </NextLink>
       </Flex>
-      <Box ml={"auto"} paddingRight={"2.2vw"}>
+      <Box ml={"auto"} paddingRight={"1.1vw"}>
         {body}
       </Box>
     </Flex>
   );
 };
-
-const flicker = keyframes`
-    50% {
-      color: white;
-      filter: saturate(200%) hue-rotate(20deg);
-    }
-  `;

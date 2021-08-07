@@ -14,7 +14,9 @@ export const InterfaceUI: React.FC<InterfaceUIProps> = ({ children }) => {
         <SideBar />
         <Box minH={"100vh"} width={"100%"}>
           <NavBar />
-          <Box>{children}</Box>
+          <Box px={"12"} pt={"2"}>
+            {children}
+          </Box>
         </Box>
       </Flex>
     </>

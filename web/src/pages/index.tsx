@@ -25,9 +25,7 @@ const Index: React.FC<{}> = ({}) => {
     <>
       <InterfaceUI>
         <Box>
-          <Box minHeight={"100vh"} p="4">
-            {boxes}
-          </Box>
+          <Box minHeight={"100vh"}>{boxes}</Box>
         </Box>
       </InterfaceUI>
     </>
