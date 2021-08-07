@@ -75,7 +75,7 @@ export const SideBar: React.FC<{}> = ({}) => {
             </NavItem>
           </NextLink>
         </Collapse>
-        <Box marginTop="auto" bg={"gray.700"} pb={"12%"}>
+        <Box marginTop="auto" bg={"gray.700"} pb={"10%"}>
           <Center pt={"15px"}>
             <NextLink href="/add-funds">
               <Button
