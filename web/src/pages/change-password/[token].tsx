@@ -14,7 +14,7 @@ import { toErrorMap } from "../../utils/toErrorMap";
 const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
   const router = useRouter();
   const [, changePassword] = useChangePasswordMutation();
-  const [tokenError, setTokenError] = useState();
+  const [tokenError, setTokenError] = useState("");
   return (
     <Wrapper variant="small">
       <Formik
@@ -58,7 +58,7 @@ const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
               mt={4}
               type="submit"
               isLoading={isSubmitting}
-              colorScheme="teal"
+              colorScheme="purple"
             >
               change password
             </Button>

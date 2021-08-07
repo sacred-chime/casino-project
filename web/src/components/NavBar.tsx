@@ -1,24 +1,11 @@
-import { ChevronDownIcon } from "@chakra-ui/icons";
-import {
-  Box,
-  Button,
-  Center,
-  Flex,
-  Link,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-} from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, Link } from "@chakra-ui/react";
 import NextLink from "next/link";
 import React from "react";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
 import { moneyFormatter } from "../utils/moneyFormatter";
 
-interface NavBarProps {}
-
-export const NavBar: React.FC<NavBarProps> = ({}) => {
+export const NavBar: React.FC<{}> = ({}) => {
   const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
   const [{ data, fetching }] = useMeQuery({
     pause: isServer(),
@@ -32,12 +19,16 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
   // user not logged in
   else if (!data?.me) {
     body = (
-      <Flex>
-        <NextLink href="/login">
-          <Link mr={2}>login</Link>
-        </NextLink>
+      <Flex alignItems="center">
         <NextLink href="/register">
-          <Link>register</Link>
+          <Button mr={5} variant="solid" colorScheme="yellow">
+            register
+          </Button>
+        </NextLink>
+        <NextLink href="/login">
+          <Button variant="ghost" mr={2}>
+            login
+          </Button>
         </NextLink>
       </Flex>
     );
@@ -46,9 +37,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
   else {
     body = (
       <Flex alignItems="center">
-        <NextLink href="/add-funds">
-          <Link mr={5}>{moneyFormatter(data.me.money)}</Link>
-        </NextLink>
+        <Box mr={5}>{moneyFormatter(data.me.money)}</Box>
         <Box mr={2}>{data.me.username}</Box>
         <Button
           onClick={() => {
@@ -64,32 +53,26 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
   }
 
   return (
-    <Flex bg="skyblue" p={4} alignItems="center">
-      <NextLink href="/">
-        <Link mr={2}>Big Boy Gamble Time</Link>
-      </NextLink>
-      <Box ml={"auto"}>
-        <Center>
-          <Menu>
-            <MenuButton
-              as={Button}
-              rightIcon={<ChevronDownIcon />}
-              backgroundColor="powderblue"
-            >
-              Games
-            </MenuButton>
-            <MenuList backgroundColor="steelblue">
-              <NextLink href="/slots">
-                <MenuItem color="white">Slots</MenuItem>
-              </NextLink>
-              <NextLink href="/blackjack">
-                <MenuItem color="white">Blackjack</MenuItem>
-              </NextLink>
-            </MenuList>
-          </Menu>
-        </Center>
+    <Flex
+      as={"nav"}
+      bg={"#1A202D"}
+      p={3}
+      alignItems={"center"}
+      position={"sticky"}
+      top={"0"}
+    >
+      <Flex paddingLeft={"35px"}>
+        <NextLink href="/">
+          <Link mr={2}>
+            <Heading as={"h2"} size={"lg"}>
+              BIG BOY GAMBLE TIME
+            </Heading>
+          </Link>
+        </NextLink>
+      </Flex>
+      <Box ml={"auto"} paddingRight={"4vw"}>
+        {body}
       </Box>
-      <Box ml={"auto"}>{body}</Box>
     </Flex>
   );
 };

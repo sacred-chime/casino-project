@@ -53,7 +53,7 @@ const Register: React.FC<{}> = ({}) => {
               mt={4}
               type="submit"
               isLoading={isSubmitting}
-              colorScheme="teal"
+              colorScheme="purple"
             >
               register
             </Button>

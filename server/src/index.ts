@@ -12,7 +12,6 @@ import Redis from "ioredis";
 import session from "express-session";
 import connectRedis from "connect-redis";
 import cors from "cors";
-import { User } from "./entities/User";
 
 const main = async () => {
   const orm = await MikroORM.init(mikroConfig);

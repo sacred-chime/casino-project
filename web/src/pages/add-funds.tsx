@@ -33,13 +33,14 @@ const AddFunds: React.FC<{}> = ({}) => {
               placeholder="0.00"
               label="Add Funds"
               type="number"
+              min={1}
               step="any"
             />
             <Button
               mt={4}
               type="submit"
               isLoading={isSubmitting}
-              colorScheme="teal"
+              colorScheme="purple"
             >
               add funds
             </Button>

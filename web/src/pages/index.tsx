@@ -1,12 +1,17 @@
+import { Box } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
-import { NavBar } from "../components/NavBar";
+import React from "react";
+import { InterfaceUI } from "../components/InterfaceUI";
 import { createUrqlClient } from "../utils/createUrqlClient";
 
 const Index: React.FC<{}> = ({}) => {
   return (
     <>
-      <NavBar />
-      <div>Index</div>
+      <InterfaceUI>
+        <Box>
+          <Box minHeight={"100vh"}>Index</Box>
+        </Box>
+      </InterfaceUI>
     </>
   );
 };

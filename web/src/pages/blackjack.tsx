@@ -1,13 +1,14 @@
 import { withUrqlClient } from "next-urql";
 import React from "react";
-import { NavBar } from "../components/NavBar";
+import { InterfaceUI } from "../components/InterfaceUI";
 import { createUrqlClient } from "../utils/createUrqlClient";
 
 const Blackjack: React.FC<{}> = ({}) => {
   return (
     <>
-      <NavBar />
-      <div>Blackjack</div>
+      <InterfaceUI>
+        <div>Blackjack</div>
+      </InterfaceUI>
     </>
   );
 };

@@ -1,7 +1,7 @@
 import { Box, SimpleGrid } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import React from "react";
-import { NavBar } from "../components/NavBar";
+import { InterfaceUI } from "../components/InterfaceUI";
 import { useMeQuery } from "../generated/graphql";
 import { convertNumToCoord } from "../utils/convertNumToCoord";
 import { createUrqlClient } from "../utils/createUrqlClient";
@@ -75,8 +75,7 @@ const Slots: React.FC<{}> = ({}) => {
 
   return (
     <>
-      <NavBar />
-      {body}
+      <InterfaceUI>{body}</InterfaceUI>
     </>
   );
 };
