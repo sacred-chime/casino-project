@@ -1,6 +1,7 @@
-import { Box, Button } from "@chakra-ui/react";
+import { Box, Button, Center, Link } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { withUrqlClient } from "next-urql";
+import NextLink from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import { InputField } from "../components/InputField";
@@ -49,14 +50,24 @@ const Register: React.FC<{}> = ({}) => {
                 type="password"
               />
             </Box>
-            <Button
-              mt={4}
-              type="submit"
-              isLoading={isSubmitting}
-              colorScheme="purple"
-            >
-              register
-            </Button>
+            <Center>
+              <Button
+                mt={10}
+                width={"500px"}
+                type="submit"
+                isLoading={isSubmitting}
+                colorScheme="purple"
+              >
+                register
+              </Button>
+            </Center>
+            <Center mt={3}>
+              <NextLink href="/login">
+                <Link fontSize={"small"} color="black">
+                  login
+                </Link>
+              </NextLink>
+            </Center>
           </Form>
         </Wrapper>
       )}
