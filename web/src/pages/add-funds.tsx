@@ -8,8 +8,10 @@ import { Wrapper } from "../components/Wrapper";
 import { useChangeFundsMutation } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { toErrorMap } from "../utils/toErrorMap";
+import { useIsAuth } from "../utils/useIsAuth";
 
 const AddFunds: React.FC<{}> = ({}) => {
+  useIsAuth();
   const router = useRouter();
   const [, changeFunds] = useChangeFundsMutation();
   return (
