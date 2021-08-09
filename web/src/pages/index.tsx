@@ -15,6 +15,7 @@ const Index: React.FC<{}> = ({}) => {
         h="96"
         p="4"
         my="4"
+        key={i}
       >
         Index{i}
       </Box>

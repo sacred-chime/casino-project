@@ -1,12 +1,14 @@
 import { Box, SimpleGrid } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
-import React from "react";
+import { useRouter } from "next/router";
+import React, { useEffect } from "react";
 import { InterfaceUI } from "../components/InterfaceUI";
 import { useMeQuery } from "../generated/graphql";
 import { convertNumToCoord } from "../utils/convertNumToCoord";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { getRandomInt } from "../utils/getRandomInt";
 import { isServer } from "../utils/isServer";
+import { useIsAuth } from "../utils/useIsAuth";
 
 const getRandomFruit = () => {
   const fruit = [
@@ -56,26 +58,12 @@ const Board: React.FC<{}> = ({}) => {
 };
 
 const Slots: React.FC<{}> = ({}) => {
-  const [{ data, fetching }] = useMeQuery({
-    pause: isServer(),
-  });
-
-  let body = null;
-
-  // data is loading
-  if (fetching) {
-  }
-  // user not logged in
-  else if (!data?.me) {
-    body = <div>user is not logged in</div>;
-  } // user is logged in
-  else {
-    body = <Board />;
-  }
-
+  useIsAuth();
   return (
     <>
-      <InterfaceUI>{body}</InterfaceUI>
+      <InterfaceUI>
+        <Board />
+      </InterfaceUI>
     </>
   );
 };

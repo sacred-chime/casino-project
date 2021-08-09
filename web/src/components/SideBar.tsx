@@ -10,12 +10,14 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
+import { useRouter } from "next/router";
 import React from "react";
 import { FaCcVisa, FaCcMastercard, FaBitcoin } from "react-icons/fa";
 import { GiCherry } from "react-icons/gi";
 import { MdGamepad, MdKeyboardArrowRight } from "react-icons/md";
 
 export const SideBar: React.FC<{}> = ({}) => {
+  const router = useRouter();
   const casino = useDisclosure();
   const miscGames = useDisclosure();
   return (

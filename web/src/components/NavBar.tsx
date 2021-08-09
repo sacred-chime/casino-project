@@ -11,12 +11,14 @@ import {
   MenuList,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
+import { useRouter } from "next/router";
 import React from "react";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
 import { moneyFormatter } from "../utils/moneyFormatter";
 
 export const NavBar: React.FC<{}> = ({}) => {
+  const router = useRouter();
   const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
   const [{ data, fetching }] = useMeQuery({
     pause: isServer(),
@@ -92,8 +94,9 @@ export const NavBar: React.FC<{}> = ({}) => {
     >
       <Flex paddingLeft={"35px"}>
         <NextLink href="/">
-          <Link mr={2}>
+          <Link>
             <Heading
+              mr={2}
               as={"h2"}
               size={"lg"}
               color="lightyellow"
