@@ -65,7 +65,13 @@ const Login: React.FC<{}> = ({}) => {
               </Button>
             </Center>
             <Center mt={3}>
-              <NextLink href="/register">
+              <NextLink
+                href={
+                  typeof router.query.next === "string"
+                    ? "/register?next=" + router.query.next
+                    : "/register"
+                }
+              >
                 <Link fontSize={"small"} color="black">
                   register
                 </Link>

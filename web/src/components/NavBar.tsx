@@ -96,7 +96,6 @@ export const NavBar: React.FC<{}> = ({}) => {
         <NextLink href="/">
           <Link>
             <Heading
-              mr={2}
               as={"h2"}
               size={"lg"}
               color="lightyellow"
@@ -110,7 +109,7 @@ export const NavBar: React.FC<{}> = ({}) => {
           </Link>
         </NextLink>
       </Flex>
-      <Box ml={"auto"} paddingRight={"1.1vw"}>
+      <Box ml={"auto"} paddingRight={"28px"}>
         {body}
       </Box>
     </Flex>

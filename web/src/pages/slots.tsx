@@ -1,13 +1,10 @@
 import { Box, SimpleGrid } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
-import { useRouter } from "next/router";
-import React, { useEffect } from "react";
+import React from "react";
 import { InterfaceUI } from "../components/InterfaceUI";
-import { useMeQuery } from "../generated/graphql";
 import { convertNumToCoord } from "../utils/convertNumToCoord";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { getRandomInt } from "../utils/getRandomInt";
-import { isServer } from "../utils/isServer";
 import { useIsAuth } from "../utils/useIsAuth";
 
 const getRandomFruit = () => {

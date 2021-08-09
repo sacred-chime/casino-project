@@ -22,7 +22,11 @@ const Register: React.FC<{}> = ({}) => {
           setErrors(toErrorMap(response.data.register.errors));
         } else if (response.data?.register.user) {
           // worked
-          router.push("/");
+          if (typeof router.query.next === "string") {
+            router.push(router.query.next);
+          } else {
+            router.push("/");
+          }
         }
       }}
     >
@@ -62,7 +66,13 @@ const Register: React.FC<{}> = ({}) => {
               </Button>
             </Center>
             <Center mt={3}>
-              <NextLink href="/login">
+              <NextLink
+                href={
+                  typeof router.query.next === "string"
+                    ? "/login?next=" + router.query.next
+                    : "/login"
+                }
+              >
                 <Link fontSize={"small"} color="black">
                   login
                 </Link>
