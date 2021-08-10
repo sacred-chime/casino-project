@@ -1,0 +1,13 @@
+query Bets($limit: Int!, $cursor: String) {
+  bets(cursor: $cursor, limit: $limit) {
+    hasMore
+    bets {
+      id
+      createdAt
+      game
+      wager
+      payout
+      playerId
+    }
+  }
+}
