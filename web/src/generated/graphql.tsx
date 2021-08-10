@@ -14,6 +14,25 @@ export type Scalars = {
   Float: number;
 };
 
+export type Bet = {
+  __typename?: 'Bet';
+  id: Scalars['Float'];
+  playerId: Scalars['Float'];
+  player: User;
+  game: Scalars['String'];
+  wager: Scalars['Float'];
+  payout: Scalars['Float'];
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+  creator: User;
+};
+
+export type BetInput = {
+  game: Scalars['String'];
+  wager: Scalars['Float'];
+  payout: Scalars['Float'];
+};
+
 export type FieldError = {
   __typename?: 'FieldError';
   field: Scalars['String'];
@@ -22,12 +41,18 @@ export type FieldError = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  createBet: Bet;
   changePassword: UserResponse;
   forgotPassword: Scalars['Boolean'];
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
   changeFunds: UserResponse;
+};
+
+
+export type MutationCreateBetArgs = {
+  input: BetInput;
 };
 
 
@@ -59,18 +84,25 @@ export type MutationChangeFundsArgs = {
 
 export type Query = {
   __typename?: 'Query';
+  bets: Array<Bet>;
+  bet?: Maybe<Bet>;
   hello: Scalars['String'];
   me?: Maybe<User>;
+};
+
+
+export type QueryBetArgs = {
+  id: Scalars['Float'];
 };
 
 export type User = {
   __typename?: 'User';
   id: Scalars['Float'];
-  createdAt: Scalars['String'];
-  updatedAt: Scalars['String'];
   username: Scalars['String'];
   email: Scalars['String'];
   money: Scalars['Float'];
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
 };
 
 export type UserResponse = {
@@ -130,6 +162,19 @@ export type ChangePasswordMutation = (
   & { changePassword: (
     { __typename?: 'UserResponse' }
     & StandardUserReponseFragment
+  ) }
+);
+
+export type CreateBetMutationVariables = Exact<{
+  input: BetInput;
+}>;
+
+
+export type CreateBetMutation = (
+  { __typename?: 'Mutation' }
+  & { createBet: (
+    { __typename?: 'Bet' }
+    & Pick<Bet, 'id' | 'createdAt' | 'game' | 'wager' | 'payout' | 'playerId'>
   ) }
 );
 
@@ -234,6 +279,22 @@ export const ChangePasswordDocument = gql`
 
 export function useChangePasswordMutation() {
   return Urql.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument);
+};
+export const CreateBetDocument = gql`
+    mutation CreateBet($input: BetInput!) {
+  createBet(input: $input) {
+    id
+    createdAt
+    game
+    wager
+    payout
+    playerId
+  }
+}
+    `;
+
+export function useCreateBetMutation() {
+  return Urql.useMutation<CreateBetMutation, CreateBetMutationVariables>(CreateBetDocument);
 };
 export const ForgotPasswordDocument = gql`
     mutation ForgotPassword($email: String!) {

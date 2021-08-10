@@ -1,4 +1,4 @@
-import { Box, Flex, Link, Button } from "@chakra-ui/react";
+import { Box, Button, Center, Flex, Link } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
@@ -23,7 +23,11 @@ const Login: React.FC<{}> = ({}) => {
             setErrors(toErrorMap(response.data.login.errors));
           } else if (response.data?.login.user) {
             // worked
-            router.push("/");
+            if (typeof router.query.next === "string") {
+              router.push(router.query.next);
+            } else {
+              router.push("/");
+            }
           }
         }}
       >
@@ -44,17 +48,35 @@ const Login: React.FC<{}> = ({}) => {
             </Box>
             <Flex mt={2}>
               <NextLink href="/forgot-password">
-                <Link ml="auto">forgot password?</Link>
+                <Link ml="auto" fontSize="small">
+                  forgot password?
+                </Link>
               </NextLink>
             </Flex>
-            <Button
-              mt={4}
-              type="submit"
-              isLoading={isSubmitting}
-              colorScheme="teal"
-            >
-              login
-            </Button>
+            <Center>
+              <Button
+                mt={4}
+                width={"500px"}
+                type="submit"
+                isLoading={isSubmitting}
+                colorScheme="purple"
+              >
+                login
+              </Button>
+            </Center>
+            <Center mt={3}>
+              <NextLink
+                href={
+                  typeof router.query.next === "string"
+                    ? "/register?next=" + router.query.next
+                    : "/register"
+                }
+              >
+                <Link fontSize={"small"} color="black">
+                  register
+                </Link>
+              </NextLink>
+            </Center>
           </Form>
         )}
       </Formik>
