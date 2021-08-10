@@ -1,29 +1,32 @@
-import "reflect-metadata";
-import "dotenv-safe/config";
-import { MikroORM } from "@mikro-orm/core";
-import { COOKIE_NAME, __prod__ } from "./constants";
-import mikroConfig from "./mikro-orm.config";
-import express from "express";
 import { ApolloServer } from "apollo-server-express";
-import { buildSchema } from "type-graphql";
-import { HelloResolver } from "./resolvers/hello";
-import { UserResolver } from "./resolvers/user";
-import Redis from "ioredis";
-import session from "express-session";
 import connectRedis from "connect-redis";
 import cors from "cors";
+import "dotenv-safe/config";
+import express from "express";
+import session from "express-session";
+import Redis from "ioredis";
+import "reflect-metadata";
+import { buildSchema } from "type-graphql";
+import { createConnection } from "typeorm";
+import { COOKIE_NAME, __prod__ } from "./constants";
+import { Bet } from "./entities/Bet";
 import { User } from "./entities/User";
+import { BetResolver } from "./resolvers/bet";
+import { HelloResolver } from "./resolvers/hello";
+import { UserResolver } from "./resolvers/user";
 
 const main = async () => {
-  const orm = await MikroORM.init(mikroConfig);
-  await orm.getMigrator().up();
-
-  //Set user "connor" to $100
-  // const user = await orm.em.findOne(User, { id: 2 });
-  // if (user) {
-  //   user.money = 100.0;
-  //   orm.em.persistAndFlush(user);
-  // }
+  await createConnection({
+    type: "postgres",
+    host: "localhost",
+    port: 5432,
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: "casino",
+    synchronize: true,
+    entities: [User, Bet],
+    logging: true,
+  });
 
   const app = express();
 
@@ -58,10 +61,10 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [HelloResolver, UserResolver],
+      resolvers: [HelloResolver, UserResolver, BetResolver],
       validate: false,
     }),
-    context: ({ req, res }) => ({ em: orm.em, req, res, redis }),
+    context: ({ req, res }) => ({ req, res, redis }),
   });
 
   apolloServer.applyMiddleware({
