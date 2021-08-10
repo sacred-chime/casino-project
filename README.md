@@ -17,7 +17,7 @@ Mike Bogert - mib39@drexel.edu
 - Next.js
 - TypeGraphQL
 - ChakraUI
-
+poogggger
 ## Ideas:
 1. **Online Casino**
 2. ~~Twitter Clone~~
