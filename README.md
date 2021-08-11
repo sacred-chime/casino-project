@@ -12,7 +12,7 @@ Mike Bogert - mib39@drexel.edu
 - URQL
 - Node.js
 - PostgreSQL
-- MikroORM
+- TypeORM
 - Redis
 - Next.js
 - TypeGraphQL

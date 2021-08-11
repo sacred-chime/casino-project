@@ -18,6 +18,7 @@ export const Wrapper: React.FC<WrapperProps> = ({
       borderWidth={1}
       borderRadius={8}
       boxShadow="lg"
+      bg="darkslateblue"
     >
       <Box p={2}>{children}</Box>
     </Box>

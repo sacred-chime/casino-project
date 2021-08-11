@@ -31,7 +31,7 @@ export const MoneyInputField: React.FC<MoneyInputFieldProps> = ({
           fontSize="1.2em"
           children="$"
         />
-        <Input {...field} {...props} id={field.name} />
+        <Input color="gray.100" {...field} {...props} id={field.name} />
       </InputGroup>
       {error ? <FormErrorMessage>{error}</FormErrorMessage> : null}
     </FormControl>

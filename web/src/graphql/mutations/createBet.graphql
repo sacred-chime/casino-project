@@ -1,0 +1,10 @@
+mutation CreateBet($input: BetInput!) {
+  createBet(input: $input) {
+    id
+    createdAt
+    game
+    wager
+    payout
+    playerId
+  }
+}
