@@ -1,15 +1,134 @@
+import { Box, Button, SimpleGrid } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import React from "react";
 import { InterfaceUI } from "../components/InterfaceUI";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { useIsAuth } from "../utils/useIsAuth";
 
+let playerCardTotal = 0;
+let playerHandValues: string[][] = [];
+let dealerCardTotal = 0;
+let dealerHandValues: string[][] = [];
+
+const drawCard = () => {
+  const suits = ["Spades", "Hearts", "Diamonds", "Clubs"];
+  const values = [
+    "A",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "J",
+    "Q",
+    "K",
+  ];
+  return [
+    suits[Math.floor(Math.random() * 3)],
+    values[Math.floor(Math.random() * 12)],
+  ];
+};
+
+const placeBet = () => {
+  const betValue = prompt("How much would you like to bet");
+  console.log("Bet Placed for", betValue);
+  //alert("Bet Placed");
+};
+
+const calculateHand = (hand: any[]) => {
+  let total = 0;
+  let aces = 0;
+  for (let i = 0; i < hand.length; i++) {
+    if (hand[i][1] == "A") {
+      aces += 1;
+    } else if (hand[i][1] == "J" || hand[i][1] == "Q" || hand[i][1] == "K") {
+      total += 10;
+    } else {
+      total += parseInt(hand[i][1]);
+    }
+  }
+  for (let i = 0; i < aces; i++) {
+    if (total <= 10) {
+      total += 11;
+    } else {
+      total += 1;
+    }
+  }
+  return total;
+};
+
+const hit = () => {
+  console.log("Hit");
+  const drawnCard = drawCard();
+  playerHandValues.push(drawnCard);
+  console.log("Drew", drawnCard[0], drawnCard[1]);
+  playerCardTotal = calculateHand(playerHandValues);
+  console.log("Total", playerCardTotal);
+};
+
+const stand = () => {
+  console.log("Stand", playerCardTotal);
+};
+
+interface tileProps {
+  value: String;
+}
+
+const Tile: React.FC<tileProps> = ({ value }) => {
+  return (
+    <Box
+      bg="white"
+      height="100px"
+      textAlign="center"
+      paddingTop="50px"
+      color={"gray.800"}
+    >
+      {value}
+    </Box>
+  );
+};
+
+const Board: React.FC<{}> = ({}) => {
+  let boardTiles = new Array(14);
+  boardTiles[0] = <Tile key={0} value={"Dealer's Cards"} />;
+  for (let i = 1; i < 6; i++) {
+    boardTiles[i] = <Tile key={i} value={""} />;
+  }
+  boardTiles[7] = <Tile key={7} value={"Your Cards"} />;
+  boardTiles[6] = <Tile key={6} value={"Total: 21"} />;
+  for (let i = 8; i < 13; i++) {
+    boardTiles[i] = <Tile key={i} value={""} />;
+  }
+  boardTiles[13] = <Tile key={13} value={`Total: ${playerCardTotal}`} />;
+
+  return (
+    <Box
+      margin={"auto"}
+      width={"100%"}
+      marginTop={"100px"}
+      padding={"10px"}
+      bg="lightskyblue"
+    >
+      <SimpleGrid columns={7} spacing={2}>
+        {boardTiles}
+      </SimpleGrid>
+    </Box>
+  );
+};
+
 const Blackjack: React.FC<{}> = ({}) => {
   useIsAuth();
   return (
     <>
       <InterfaceUI>
-        <div>Blackjack</div>
+        <Button onClick={hit}>Hit</Button>
+        <Button onClick={stand}>Stand</Button>
+        <Button onClick={placeBet}>Place Bet</Button>
+        <Board />
       </InterfaceUI>
     </>
   );

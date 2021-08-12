@@ -31,7 +31,7 @@ export class User extends BaseEntity {
   @OneToMany(() => Bet, (bet) => bet.player)
   bets: Bet[];
 
-  @Field()
+  @Field({ nullable: true })
   @Column("decimal", { precision: 10, scale: 2 })
   money: number = 0.0;
 
