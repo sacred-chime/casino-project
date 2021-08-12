@@ -16,6 +16,7 @@ import React, { useState } from "react";
 import { CarouselData } from "../components/ImageCarousel/CarouselData";
 import ImageCarousel from "../components/ImageCarousel/ImageCarousel";
 import { IndexBox } from "../components/IndexBox";
+import { IndexHeader } from "../components/IndexHeader";
 import { InterfaceUI } from "../components/InterfaceUI";
 import { BetsQuery, useBetsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
@@ -44,7 +45,7 @@ const Index: React.FC<{}> = ({}) => {
     <>
       <InterfaceUI>
         <Box>
-          <Box minHeight={"100vh"}>
+          <Box>
             {!data && fetching ? (
               <div>loading...</div>
             ) : (
@@ -98,6 +99,9 @@ const BetsTable: React.FC<betsTableProps> = ({
   return (
     <>
       <Box minHeight={"360px"}>
+        <Center mb={"2"} width={"850px"} ml={"auto"} mr={"auto"}>
+          <IndexHeader text={"ALL BETS"} />
+        </Center>
         <Table
           variant={"unstyled"}
           size="sm"
@@ -225,4 +229,4 @@ const BetsTable: React.FC<betsTableProps> = ({
   );
 };
 
-export default withUrqlClient(createUrqlClient)(Index);
+export default withUrqlClient(createUrqlClient, { ssr: true })(Index);

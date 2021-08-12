@@ -51,7 +51,7 @@ export const NavBar: React.FC<{}> = ({}) => {
     body = (
       <Flex alignItems="center" textAlign={"center"}>
         <Box mr={5} width={"120px"} color={"gray.400"} fontWeight={"semibold"}>
-          {moneyFormatter(data.me.money)}
+          {data.me.money ? moneyFormatter(data.me.money) : "no money found"}
         </Box>
         <Menu>
           <MenuButton
