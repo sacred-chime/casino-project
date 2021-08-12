@@ -91,6 +91,7 @@ export const NavBar: React.FC<{}> = ({}) => {
       alignItems={"center"}
       position={"sticky"}
       top={"0"}
+      zIndex={"100"}
     >
       <Flex paddingLeft={"35px"}>
         <NextLink href="/">

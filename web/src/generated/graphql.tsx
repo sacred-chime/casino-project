@@ -28,7 +28,6 @@ export type Bet = {
   payout: Scalars["Float"];
   createdAt: Scalars["String"];
   updatedAt: Scalars["String"];
-  creator: User;
 };
 
 export type BetInput = {
@@ -108,7 +107,7 @@ export type User = {
   id: Scalars["Float"];
   username: Scalars["String"];
   email: Scalars["String"];
-  money: Scalars["Float"];
+  money?: Maybe<Scalars["Float"]>;
   createdAt: Scalars["String"];
   updatedAt: Scalars["String"];
 };
@@ -211,8 +210,13 @@ export type BetsQuery = { __typename?: "Query" } & {
       bets: Array<
         { __typename?: "Bet" } & Pick<
           Bet,
-          "id" | "createdAt" | "game" | "wager" | "payout" | "playerId"
-        >
+          "id" | "createdAt" | "game" | "wager" | "payout"
+        > & {
+            player: { __typename?: "User" } & Pick<
+              User,
+              "id" | "username" | "email" | "money"
+            >;
+          }
       >;
     };
 };
@@ -354,7 +358,12 @@ export const BetsDocument = gql`
         game
         wager
         payout
-        playerId
+        player {
+          id
+          username
+          email
+          money
+        }
       }
     }
   }

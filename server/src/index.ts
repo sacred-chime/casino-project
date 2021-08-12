@@ -14,9 +14,11 @@ import { User } from "./entities/User";
 import { BetResolver } from "./resolvers/bet";
 import { HelloResolver } from "./resolvers/hello";
 import { UserResolver } from "./resolvers/user";
+import { createUserLoader } from "./utils/createUserLoader";
+import path from "path";
 
 const main = async () => {
-  await createConnection({
+  const conn = await createConnection({
     type: "postgres",
     host: "localhost",
     port: 5432,
@@ -24,9 +26,11 @@ const main = async () => {
     password: process.env.DB_PASSWORD,
     database: "casino",
     synchronize: true,
+    migrations: [path.join(__dirname, "./migrations/*")],
     entities: [User, Bet],
     logging: true,
   });
+  await conn.runMigrations();
 
   const app = express();
 
@@ -64,7 +68,12 @@ const main = async () => {
       resolvers: [HelloResolver, UserResolver, BetResolver],
       validate: false,
     }),
-    context: ({ req, res }) => ({ req, res, redis }),
+    context: ({ req, res }) => ({
+      req,
+      res,
+      redis,
+      userLoader: createUserLoader(),
+    }),
   });
 
   apolloServer.applyMiddleware({

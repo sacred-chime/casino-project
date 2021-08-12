@@ -7,7 +7,12 @@ query Bets($limit: Int!, $cursor: String) {
       game
       wager
       payout
-      playerId
+      player {
+        id
+        username
+        email
+        money
+      }
     }
   }
 }

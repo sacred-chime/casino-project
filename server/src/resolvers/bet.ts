@@ -29,7 +29,7 @@ class PaginatedBets {
 @Resolver(Bet)
 export class BetResolver {
   @FieldResolver(() => User)
-  creator(@Root() bet: Bet, @Ctx() { userLoader }: MyContext) {
+  player(@Root() bet: Bet, @Ctx() { userLoader }: MyContext) {
     return userLoader.load(bet.playerId);
   }
 
@@ -40,20 +40,23 @@ export class BetResolver {
   ): Promise<PaginatedBets> {
     const realLimit = Math.min(50, limit);
     const realLimitPlusOne = realLimit + 1;
-    const qb = await getConnection()
-      .getRepository(Bet)
-      .createQueryBuilder("b")
-      //.innerJoinAndSelect("b.player", "u", 'u.id = b."playerId"')
-      .orderBy('b."createdAt"', "DESC")
-      .take(realLimitPlusOne);
+
+    const replacements: any[] = [realLimitPlusOne];
 
     if (cursor) {
-      qb.where('b."createdAt" < :cursor', {
-        cursor: new Date(parseInt(cursor)),
-      });
+      replacements.push(new Date(parseInt(cursor)));
     }
 
-    const bets = await qb.getMany();
+    const bets = await getConnection().query(
+      `
+    select b.*
+    from bet b
+    ${cursor ? `where b."createdAt" < $2` : ""}
+    order by b."createdAt" DESC
+    limit $1
+    `,
+      replacements
+    );
 
     return {
       bets: bets.slice(0, realLimit),
