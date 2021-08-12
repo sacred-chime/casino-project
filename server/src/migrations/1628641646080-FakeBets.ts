@@ -106,5 +106,5 @@ insert into bet (game, wager, payout, "playerId", "createdAt") values ('Slots', 
 insert into bet (game, wager, payout, "playerId", "createdAt") values ('Blackjack', 383.12, 1513.06, 2, '2019-10-15T07:26:03Z');`);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(_: QueryRunner): Promise<void> {}
 }

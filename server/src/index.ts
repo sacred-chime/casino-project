@@ -5,6 +5,7 @@ import "dotenv-safe/config";
 import express from "express";
 import session from "express-session";
 import Redis from "ioredis";
+import path from "path";
 import "reflect-metadata";
 import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
@@ -15,7 +16,6 @@ import { BetResolver } from "./resolvers/bet";
 import { HelloResolver } from "./resolvers/hello";
 import { UserResolver } from "./resolvers/user";
 import { createUserLoader } from "./utils/createUserLoader";
-import path from "path";
 
 const main = async () => {
   const conn = await createConnection({
