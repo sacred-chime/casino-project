@@ -4,36 +4,38 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Bet } from "./Bet";
+import { User } from "./User";
 
 @ObjectType()
 @Entity()
-export class User extends BaseEntity {
+export class Bet extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn()
   id!: number;
 
   @Field()
-  @Column({ unique: true })
-  username!: string;
+  @Column()
+  playerId: number;
 
   @Field()
-  @Column({ unique: true })
-  email!: string;
+  @ManyToOne(() => User, (user) => user.bets)
+  player: User;
 
+  @Field()
   @Column()
-  password!: string;
-
-  @OneToMany(() => Bet, (bet) => bet.player)
-  bets: Bet[];
+  game!: string;
 
   @Field()
   @Column("decimal", { precision: 10, scale: 2 })
-  money: number = 0.0;
+  wager!: number;
+
+  @Field()
+  @Column("decimal", { precision: 10, scale: 2 })
+  payout!: number;
 
   @Field(() => String)
   @CreateDateColumn()

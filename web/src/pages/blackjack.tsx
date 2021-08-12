@@ -1,8 +1,9 @@
 import { withUrqlClient } from "next-urql";
 import { Box, SimpleGrid } from "@chakra-ui/react";
 import React from "react";
-import { NavBar } from "../components/NavBar";
+import { InterfaceUI } from "../components/InterfaceUI";
 import { createUrqlClient } from "../utils/createUrqlClient";
+import { useIsAuth } from "../utils/useIsAuth";
 import { useMeQuery } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
 
@@ -103,32 +104,16 @@ const Board: React.FC<{}> = ({}) => {
   );
 };
 
-
-
 const Blackjack: React.FC<{}> = ({}) => {
-  const [{ data, fetching }] = useMeQuery({
-    pause: isServer(),
-  });
-  let body = null;
-
-  // data is loading
-  if (fetching) {
-  }
-  // user not logged in
-  else if (!data?.me) {
-    body = <div>user is not logged in</div>;
-  } // user is logged in
-  else {
-    body = <Board />;
-  }
-
+  useIsAuth();
   return (
     <>
-      <NavBar />
+      <InterfaceUI>
       <button onClick={hit}>Hit</button>
       <button onClick={stand}>Stand</button>
       <button onClick={placeBet}>Place Bet</button>
-      {body}
+      {<Board />}
+      </InterfaceUI>
     </>
   );
 };
