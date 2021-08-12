@@ -69,7 +69,7 @@ interface tileProps {
 
 const Tile: React.FC<tileProps> = (props) => {
   return (
-    <Box bg="#1A202D" height="100px" textAlign="center" paddingTop="50px">
+    <Box bg="gray.800" height="100px" textAlign="center" paddingTop="50px">
       {props.value}
     </Box>
   );
