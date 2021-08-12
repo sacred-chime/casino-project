@@ -44,26 +44,24 @@ const Index: React.FC<{}> = ({}) => {
   return (
     <>
       <InterfaceUI>
-        <Box>
-          <Box>
-            {!data && fetching ? (
-              <div>loading...</div>
-            ) : (
-              <>
-                <IndexBox>
-                  <ImageCarousel slides={CarouselData} />
-                </IndexBox>
-                <IndexBox>
-                  <BetsTable
-                    betData={data!}
-                    fetching={fetching}
-                    variables={variables}
-                    setVariables={setVariables}
-                  />
-                </IndexBox>
-              </>
-            )}
-          </Box>
+        <Box minHeight={"110vh"}>
+          {!data && fetching ? (
+            <div>loading...</div>
+          ) : (
+            <>
+              <IndexBox>
+                <ImageCarousel slides={CarouselData} />
+              </IndexBox>
+              <IndexBox>
+                <BetsTable
+                  betData={data!}
+                  fetching={fetching}
+                  variables={variables}
+                  setVariables={setVariables}
+                />
+              </IndexBox>
+            </>
+          )}
         </Box>
       </InterfaceUI>
     </>

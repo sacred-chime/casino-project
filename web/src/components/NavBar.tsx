@@ -86,7 +86,7 @@ export const NavBar: React.FC<{}> = ({}) => {
   return (
     <Flex
       as={"nav"}
-      bg={"#1A202D"}
+      bg={"gray.800"}
       p={3}
       alignItems={"center"}
       position={"sticky"}
