@@ -1,5 +1,5 @@
+import { Box, Button, SimpleGrid } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
-import { Box, SimpleGrid } from "@chakra-ui/react";
 import React from "react";
 import { InterfaceUI } from "../components/InterfaceUI";
 import { createUrqlClient } from "../utils/createUrqlClient";
@@ -104,15 +104,19 @@ const Board: React.FC<{}> = ({}) => {
   );
 };
 
+interface tileProps {
+  value: String;
+}
+
 const Blackjack: React.FC<{}> = ({}) => {
   useIsAuth();
   return (
     <>
       <InterfaceUI>
-      <button onClick={hit}>Hit</button>
-      <button onClick={stand}>Stand</button>
-      <button onClick={placeBet}>Place Bet</button>
-      {<Board />}
+        <Button onClick={hit}>Hit</Button>
+        <Button onClick={stand}>Stand</Button>
+        <Button onClick={placeBet}>Place Bet</Button>
+        <Board />
       </InterfaceUI>
     </>
   );
