@@ -92,7 +92,6 @@ interface tileProps {
 const Blackjack: React.FC<{}> = ({}) => {
   useIsAuth();
   const[boardTiles, updateBoardTiles] = useState(new Array(14));
-  const[Board, updateBoardFinal] = useState(new Array(14));
 
   const Board: React.FC<{}> = ({}) => {
     boardTiles[0] = <Tile key={0} value={"Dealer's Cards"} />;
