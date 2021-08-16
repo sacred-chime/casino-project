@@ -4,8 +4,9 @@ import { InterfaceUI } from "../components/InterfaceUI";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { useIsAuth } from "../utils/useIsAuth";
 import { Formik, Field, Form, FormikHelpers, useFormik } from 'formik';
+import { chakra } from "@chakra-ui/react"
 //import ReactDOM from 'react-dom';
-import winners from "../src/patterns.png"
+//import winners from "../src/patterns.png"
 
 class Square extends React.Component <any, any> {
   constructor(props: any) {
@@ -17,24 +18,15 @@ class Square extends React.Component <any, any> {
 
   render() {
     return (
-      <div
+      <chakra.div
         className="square"
         style={{backgroundColor: this.props.bgColor}}
       >
         {this.props.value}
-      </div>
+      </chakra.div>
     );
   }
 }
-
-const formik = useFormik({
-  initialValues: {
-    bet: 1,
-  },
-  onSubmit: values => {
-    alert(JSON.stringify(values, null, 2));
-  },
-});
 
 class Board extends React.Component <any,any> {
 
@@ -43,8 +35,14 @@ class Board extends React.Component <any,any> {
     this.state = {
       squares: Array(15).fill(null),
       numArray: Array(15).fill(null),
-      colors: Array(15).fill('white')
+      colors: Array(15).fill('white'),
+      bet: 1,
     };
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(event: any) {
+    this.setState({bet: event.target.value});
   }
 
   calculateWinner(squares: Array<string>,bet: number) {
@@ -56,7 +54,7 @@ class Board extends React.Component <any,any> {
     }
     
     const values = [10,10,10,10,15,15,15,20,20,30,1,1000,30,30,1000] ;
-    const symbols = ['♠','♣','♥','♦','🍉','🍌','🍒','🍓','🍍','👑','💩','💯','💲','💍','📖'] ;
+    const symbols = ['&hearts','&clubs','&spades','&diams','🍉','🍌','🍒','🍓','🍍','👑','💩','💯','💲','💍','📖'] ;
     const lines = [
       [0, 1, 2, 3, 4],
       [5, 6, 7, 8, 9],
@@ -110,7 +108,7 @@ class Board extends React.Component <any,any> {
       numArray.push(randomNum)
       squares[i] = symbols[randomNum];
     }
-    [won, winnings,newColors] = this.calculateWinner(squares,formik.values.bet)
+    [won, winnings,newColors] = this.calculateWinner(squares,this.state.bet)
     for(let i=0;i<newColors.length;i++)
     {
       colors[i] = newColors[i] ;
@@ -131,7 +129,7 @@ class Board extends React.Component <any,any> {
 
   render() {
     let visible = 'none' ;
-    let [winner, winnings] = this.calculateWinner(this.state.squares,formik.values.bet)
+    let [winner, winnings] = this.calculateWinner(this.state.squares,this.state.bet)
     let status ;
     if(winner)
     {
@@ -141,41 +139,40 @@ class Board extends React.Component <any,any> {
     else
     {
       let phrases = ["Wow you're bad at this", "Better luck next time!", "It's time to stop", "Get help", "Sorry"]
-      status = phrases[Math.floor(Math.random() * 5)]
+      status = phrases[Math.floor(Math.random() * phrases.length)]
     }
-
-    useIsAuth() ;
     
     return (
       <>
-      <Form onSubmit={formik.handleSubmit}>
-        <h1>Slot Machine</h1>
-          <p>Try to not lose your mortgage :)</p>
-          <div>
-            <div className="board-row">
+        <chakra.h1>Slot Machine</chakra.h1>
+          <chakra.p>Try to not lose your mortgage :)</chakra.p>
+          <chakra.div>
+            <chakra.div className="board-row">
               {this.renderSquare(0)}{this.renderSquare(1)}{this.renderSquare(2)}{this.renderSquare(3)}{this.renderSquare(4)}
-            </div>
-            <div className="board-row">
+            </chakra.div>
+            <chakra.div className="board-row">
             {this.renderSquare(5)}{this.renderSquare(6)}{this.renderSquare(7)}{this.renderSquare(8)}{this.renderSquare(9)}
-            </div>
-            <div className="board-row">
+            </chakra.div>
+            <chakra.div className="board-row">
             {this.renderSquare(10)}{this.renderSquare(11)}{this.renderSquare(12)}{this.renderSquare(13)}{this.renderSquare(14)}
-            </div>
-          </div>
+            </chakra.div>
+          </chakra.div>
           <br></br>
-          <label htmlFor="bet">How much would you like to bet?</label>
-          <input id="bet" name="bet" type="number" onChange={formik.handleChange} value={formik.values.bet}></input>
-          <button type="submit">Submit Bet</button>
-          <button style={{fontSize:16, position:'relative', left:'42%'}} onClick={() => this.handleClick()}>Spin</button><br></br><br></br>
-          <div>{status}</div><div style={{display: visible}}>Congrats, you won ${winnings}!</div>
-        </Form>
+          <chakra.form>
+            <chakra.label>
+              How much would you like to bet?
+              <chakra.input type="text" value={this.state.value} onChange={this.handleChange} />
+            </chakra.label>
+            <chakra.input type="submit" value="Submit" />
+          </chakra.form>
+          <chakra.button style={{fontSize:16, position:'relative', left:'42%'}} onClick={() => this.handleClick()}>Spin</chakra.button><br></br><br></br>
+          <chakra.div>{status}</chakra.div><chakra.div style={{display: visible}}>Congrats, you won ${winnings}!</chakra.div>
       </>
     );
   }
 }
 
-class Game extends React.Component {
-  render() {
+function Game () {
     return (
       <div className="game">
         <div className="game-board">
@@ -185,7 +182,6 @@ class Game extends React.Component {
         </div>
       </div>
     );
-  }
 }
 
 // ========================================
