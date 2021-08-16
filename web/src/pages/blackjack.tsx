@@ -1,19 +1,19 @@
 import { Box, Button, SimpleGrid } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
-import React from "react";
+import React, {useState} from "react";
 import { InterfaceUI } from "../components/InterfaceUI";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { useIsAuth } from "../utils/useIsAuth";
 import { useMeQuery } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
-
+import { useSubscription } from "urql";
 
 var playerCardTotal = 0;
-var playerHandValues : any[];
+var playerHandValues : Array<[string, string]> = [];
 var dealerCardTotal = 0;
 var dealerHandValues:Array<Array<String>>;
 
-function drawCard(){
+function drawCard(): [string, string]{
   var suits = ["Spades", "Hearts", "Diamonds", "Clubs"];
   var values = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
   return([suits[Math.floor(Math.random() * 3)], values[Math.floor(Math.random() * 12)]]);
@@ -25,7 +25,7 @@ function placeBet() {
   //alert("Bet Placed");
 }
 
-function calculateHand(hand:any[]){
+function calculateHand(hand:string[][]){
   let total = 0;
   let aces = 0;
   for(let i = 0; i < hand.length; i++){
@@ -52,7 +52,7 @@ function calculateHand(hand:any[]){
 
 function hit() {
   console.log("Hit");
-  var drawnCard = drawCard();
+  var drawnCard: [string, string] = drawCard();
   playerHandValues.push(drawnCard);
   console.log("Drew", drawnCard[0], drawnCard[1]);
   playerCardTotal = calculateHand(playerHandValues);
@@ -67,6 +67,12 @@ interface tileProps {
   value: String;
 }
 
+function updateBoard(board:Array<string>){
+  board[2] = "1";
+  console.log(board[2]);
+  return board;
+}
+
 const Tile: React.FC<tileProps> = (props) => {
   return (
     <Box bg="gray.800" height="100px" textAlign="center" paddingTop="50px">
@@ -75,47 +81,55 @@ const Tile: React.FC<tileProps> = (props) => {
   );
 };
 
-const Board: React.FC<{}> = ({}) => {
-  let boardTiles = new Array(14);
-  boardTiles[0] = <Tile key={0} value={"Dealer's Cards"} />;
-  for (let i = 1; i < 6; i++) {
-    boardTiles[i] = <Tile key={i} value={""} />;
-  }
-  boardTiles[7] = <Tile key={7} value={"Your Cards"} />;
-  boardTiles[6] = <Tile key={6} value={"Total: 21"} />;
-  for (let i = 8; i < 13; i++) {
-    boardTiles[i] = <Tile key={i} value={""} />;
-  }
-  boardTiles[13] = <Tile key={13} value={`Total: ${playerCardTotal}`} />;
 
 
-  return (
-    <Box
-      margin={"auto"}
-      width={"100%"}
-      marginTop={"100px"}
-      padding={"10px"}
-      bg="lightskyblue"
-    >
-      <SimpleGrid columns={7} spacing={2}>
-        {boardTiles}
-      </SimpleGrid>
-    </Box>
-  );
-};
 
 interface tileProps {
   value: String;
 }
 
+
 const Blackjack: React.FC<{}> = ({}) => {
   useIsAuth();
+  const[boardTiles, updateBoardTiles] = useState(new Array(14));
+  const[Board, updateBoardFinal] = useState(new Array(14));
+
+  const Board: React.FC<{}> = ({}) => {
+    boardTiles[0] = <Tile key={0} value={"Dealer's Cards"} />;
+    for (let i = 1; i < 6; i++) {
+      boardTiles[i] = <Tile key={i} value={""} />;
+    }
+    boardTiles[7] = <Tile key={7} value={"Your Cards"} />;
+    boardTiles[6] = <Tile key={6} value={"Total: 21"} />;
+    for (let i = 8; i < 13; i++) {
+      boardTiles[i] = <Tile key={i} value={""} />;
+    }
+    boardTiles[13] = <Tile key={13} value={`Total: ${playerCardTotal}`} />;
+  
+  
+    return (
+      <Box
+        margin={"auto"}
+        width={"100%"}
+        marginTop={"100px"}
+        padding={"10px"}
+        bg="lightskyblue"
+      >
+        <SimpleGrid columns={7} spacing={2}>
+          {boardTiles}
+        </SimpleGrid>
+      </Box>
+    );
+  };
+  
   return (
     <>
       <InterfaceUI>
-        <Button onClick={hit}>Hit</Button>
-        <Button onClick={stand}>Stand</Button>
-        <Button onClick={placeBet}>Place Bet</Button>
+        <Button onClick={() => hit()}>Hit</Button>
+        <Button onClick={() => {updateBoardTiles(boardTiles => updateBoard(boardTiles))}}>test</Button>
+        <Button onClick={() => stand()}>Stand</Button>
+        <Button onClick={() => placeBet()}>Place Bet</Button>
+
         <Board />
       </InterfaceUI>
     </>
