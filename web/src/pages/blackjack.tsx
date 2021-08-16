@@ -1,112 +1,95 @@
 import { Box, Button, SimpleGrid } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { InterfaceUI } from "../components/InterfaceUI";
 import { createUrqlClient } from "../utils/createUrqlClient";
+import { getRandomInt } from "../utils/getRandomInt";
 import { useIsAuth } from "../utils/useIsAuth";
-import { useMeQuery } from "../generated/graphql";
-import { isServer } from "../utils/isServer";
-import { useSubscription } from "urql";
 
-var playerCardTotal = 0;
-var playerHandValues : Array<[string, string]> = [];
-var dealerCardTotal = 0;
-var dealerHandValues:Array<Array<String>>;
-
-function drawCard(): [string, string]{
-  var suits = ["Spades", "Hearts", "Diamonds", "Clubs"];
-  var values = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
-  return([suits[Math.floor(Math.random() * 3)], values[Math.floor(Math.random() * 12)]]);
+// INTERFACES / TYPE DEFINITIONS
+interface Card {
+  suit: string;
+  value: string;
 }
 
-function placeBet() {
-  var betValue = prompt("How much would you like to bet");
-  console.log("Bet Placed for", betValue);
-  //alert("Bet Placed");
+interface PlayerHandProps {
+  total: number;
+  cards: Card[];
 }
 
-function calculateHand(hand:string[][]){
-  let total = 0;
-  let aces = 0;
-  for(let i = 0; i < hand.length; i++){
-    if (hand[i][1] == "A"){
-      aces += 1;
-    }
-    else if(hand[i][1] == "J" || hand[i][1] == "Q" || hand[i][1] == "K"){
-      total += 10;
-    }
-    else{
-      total += parseInt(hand[i][1]);
-    }
-  }
-  for(let i = 0; i < aces; i++){
-    if(total <= 10){
-      total += 11;
-    }
-    else{
-      total += 1;
-    }
-  }
-  return total;
+interface BlackjackBoardProps {
+  playerHand: PlayerHandProps;
+  dealerHand: PlayerHandProps;
+  setPlayerHand: React.Dispatch<React.SetStateAction<PlayerHandProps>>;
+  setDealerHand: React.Dispatch<React.SetStateAction<PlayerHandProps>>;
 }
 
-function hit() {
-  console.log("Hit");
-  var drawnCard: [string, string] = drawCard();
-  playerHandValues.push(drawnCard);
-  console.log("Drew", drawnCard[0], drawnCard[1]);
-  playerCardTotal = calculateHand(playerHandValues);
-  console.log("Total", playerCardTotal);
-}
-
-function stand() {
-  console.log("Stand", playerCardTotal);
-}
-
-interface tileProps {
+interface BlackjackTileProps {
   value: String;
 }
 
-function updateBoard(board:Array<string>){
-  board[2] = "1";
-  console.log(board[2]);
-  return board;
-}
+// MAIN COMPONENT
+const Blackjack: React.FC<{}> = ({}) => {
+  useIsAuth();
+  const [playerHand, setPlayerHand] = useState<PlayerHandProps>({
+    total: 0,
+    cards: [],
+  });
+  const [dealerHand, setDealerHand] = useState<PlayerHandProps>({
+    total: 0,
+    cards: [],
+  });
 
-const Tile: React.FC<tileProps> = (props) => {
   return (
-    <Box bg="gray.800" height="100px" textAlign="center" paddingTop="50px">
-      {props.value}
-    </Box>
+    <>
+      <InterfaceUI>
+        <BlackjackBoard
+          playerHand={playerHand}
+          dealerHand={dealerHand}
+          setPlayerHand={setPlayerHand}
+          setDealerHand={setDealerHand}
+        />
+      </InterfaceUI>
+    </>
   );
 };
 
+export default withUrqlClient(createUrqlClient)(Blackjack);
 
+// BOARD COMPONENT
+const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
+  playerHand,
+  dealerHand,
+  setPlayerHand,
+  setDealerHand,
+}) => {
+  const [boardTiles, updateBoardTiles] = useState(new Array(14));
+  boardTiles[0] = <BlackjackTile key={0} value={"Dealer's Cards"} />;
+  for (let i = 1; i < 6; i++) {
+    boardTiles[i] = <BlackjackTile key={i} value={""} />;
+  }
+  boardTiles[7] = <BlackjackTile key={7} value={"Your Cards"} />;
+  boardTiles[6] = <BlackjackTile key={6} value={"Total: 21"} />;
+  for (let i = 8; i < 13; i++) {
+    boardTiles[i] = (
+      <BlackjackTile
+        key={i}
+        value={
+          playerHand.cards[i - 8]
+            ? playerHand.cards[i - 8].value +
+              " of " +
+              playerHand.cards[i - 8].suit
+            : ""
+        }
+      />
+    );
+  }
+  boardTiles[13] = (
+    <BlackjackTile key={13} value={`Total: ${playerHand.total}`} />
+  );
 
-
-interface tileProps {
-  value: String;
-}
-
-
-const Blackjack: React.FC<{}> = ({}) => {
-  useIsAuth();
-  const[boardTiles, updateBoardTiles] = useState(new Array(14));
-
-  const Board: React.FC<{}> = ({}) => {
-    boardTiles[0] = <Tile key={0} value={"Dealer's Cards"} />;
-    for (let i = 1; i < 6; i++) {
-      boardTiles[i] = <Tile key={i} value={""} />;
-    }
-    boardTiles[7] = <Tile key={7} value={"Your Cards"} />;
-    boardTiles[6] = <Tile key={6} value={"Total: 21"} />;
-    for (let i = 8; i < 13; i++) {
-      boardTiles[i] = <Tile key={i} value={""} />;
-    }
-    boardTiles[13] = <Tile key={13} value={`Total: ${playerCardTotal}`} />;
-  
-  
-    return (
+  return (
+    <>
       <Box
         margin={"auto"}
         width={"100%"}
@@ -118,21 +101,82 @@ const Blackjack: React.FC<{}> = ({}) => {
           {boardTiles}
         </SimpleGrid>
       </Box>
-    );
-  };
-  
-  return (
-    <>
-      <InterfaceUI>
-        <Button onClick={() => hit()}>Hit</Button>
-        <Button onClick={() => {updateBoardTiles(boardTiles => updateBoard(boardTiles))}}>test</Button>
-        <Button onClick={() => stand()}>Stand</Button>
-        <Button onClick={() => placeBet()}>Place Bet</Button>
-
-        <Board />
-      </InterfaceUI>
+      <Box>
+        <Button
+          onClick={() => {
+            const newHand = playerHand.cards.concat(drawCard());
+            const newTotal = calculateHand(newHand);
+            setPlayerHand({
+              total: newTotal,
+              cards: newHand,
+            });
+            console.log(playerHand);
+          }}
+        >
+          Hit
+        </Button>
+        {/* <Button onClick={() => stand()}>Stand</Button>
+        <Button onClick={() => placeBet()}>Place Bet</Button> */}
+      </Box>
     </>
   );
 };
 
-export default withUrqlClient(createUrqlClient)(Blackjack);
+// TILE COMPONENT
+const BlackjackTile: React.FC<BlackjackTileProps> = (props) => {
+  return (
+    <Box bg="gray.800" height="100px" textAlign="center" paddingTop="50px">
+      {props.value}
+    </Box>
+  );
+};
+
+// HELPER FUNCTIONS
+const drawCard = (): Card => {
+  const suits = ["Spades", "Hearts", "Diamonds", "Clubs"];
+  const values = [
+    "A",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "J",
+    "Q",
+    "K",
+  ];
+  return {
+    suit: suits[getRandomInt(0, 3)],
+    value: values[getRandomInt(0, 12)],
+  };
+};
+
+const calculateHand = (hand: Card[]) => {
+  let total = 0;
+  let aces = 0;
+  for (let i = 0; i < hand.length; i++) {
+    if (hand[i].value == "A") {
+      aces += 1;
+    } else if (
+      hand[i].value == "J" ||
+      hand[i].value == "Q" ||
+      hand[i].value == "K"
+    ) {
+      total += 10;
+    } else {
+      total += parseInt(hand[i].value);
+    }
+  }
+  for (let i = 0; i < aces; i++) {
+    if (total <= 10) {
+      total += 11;
+    } else {
+      total += 1;
+    }
+  }
+  return total;
+};
