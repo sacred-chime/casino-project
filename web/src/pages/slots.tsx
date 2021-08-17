@@ -167,7 +167,7 @@ const Square: React.FC<SquareProps> = ({ index, bgColor, symbol }) => {
       width={"9vw"}
       alignItems={"center"}
       justifyContent={"center"}
-      fontSize={"100px"}
+      fontSize={"5vw"}
       fontWeight={"bold"}
     >
       {symbol}
