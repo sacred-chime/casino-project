@@ -109,7 +109,14 @@ const Board: React.FC<BoardProps> = ({ symbols }) => {
     <Box key={"game-board"} id={"game-board"}>
       <Heading as={"h1"}>Slot Machine</Heading>
       <Text>Try to not lose your mortgage :)</Text>
-      <Box my={"10px"} key={"slot-rows"} id={"slot-rows"}>
+      <Box
+        my={"10px"}
+        p={3}
+        bgColor={"purple.700"}
+        borderRadius={"25px"}
+        key={"slot-rows"}
+        id={"slot-rows"}
+      >
         {slotsRows}
       </Box>
       {/* <label>
@@ -156,11 +163,11 @@ const Square: React.FC<SquareProps> = ({ index, bgColor, symbol }) => {
       color={"black"}
       bgColor={bgColor}
       border={"1px solid #999"}
-      height={"90px"}
-      width={"90px"}
+      height={"200px"}
+      width={"200px"}
       alignItems={"center"}
       justifyContent={"center"}
-      fontSize={"xxx-large"}
+      fontSize={"100px"}
       fontWeight={"bold"}
     >
       {symbol}
