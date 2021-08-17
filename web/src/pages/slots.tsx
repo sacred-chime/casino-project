@@ -62,7 +62,8 @@ const Game: React.FC<{}> = ({}) => {
 
 // GAME BOARD COMPONENT
 const Board: React.FC<BoardProps> = ({ symbols }) => {
-  const [bet, setBet] = useState<number | null>(null);
+  const [bet, setBet] = useState<number | undefined>();
+  const [winnings, setWinnings] = useState(0);
   const [slots, setSlots] = useState<Slots>({
     squares: new Array(15).fill({ value: 1, symbol: "💩" }),
     colors: new Array(15).fill("white"),
@@ -91,9 +92,9 @@ const Board: React.FC<BoardProps> = ({ symbols }) => {
     for (let col = 0; col < 5; col++) {
       slotsRow.push(
         <Square
-          index={row * 3 + col}
-          bgColor={slots.colors[row * 3 + col]}
-          symbol={slots.squares[row * 3 + col].symbol}
+          index={row * 5 + col}
+          bgColor={slots.colors[row * 5 + col]}
+          symbol={slots.squares[row * 5 + col].symbol}
         />
       );
     }
@@ -121,24 +122,27 @@ const Board: React.FC<BoardProps> = ({ symbols }) => {
       </label> */}
       <Center my={"10px"}>
         <Button
+          // isDisabled={!!bet}
           onClick={() => {
             let newSquares = new Array<SlotsSymbol>(15);
             for (let i = 0; i < 15; i++) {
               newSquares[i] = symbols[getRandomInt(0, symbols.length)];
             }
-            values = calculateWinner(slots.squares, bet);
+            values = calculateWinner(newSquares, 1); //bet);
             let newColors = values.colors;
             setSlots({
               squares: newSquares,
               colors: newColors,
             });
+            setWinnings(values.winnings);
+            //console.log("squares:", newSquares, "colors: ", newColors);
           }}
         >
           Spin
         </Button>
       </Center>
       <Box my={"10px"}>{status}</Box>
-      <Box my={"10px"}>Congrats, you won ${values.winnings}!</Box>
+      <Box my={"10px"}>Congrats, you won ${winnings}!</Box>
     </Box>
   );
 };
@@ -165,7 +169,7 @@ const Square: React.FC<SquareProps> = ({ index, bgColor, symbol }) => {
 };
 
 // HELPER FUNCTIONS
-const calculateWinner = (squares: SlotsSymbol[], bet: number | null) => {
+const calculateWinner = (squares: SlotsSymbol[], bet: number) => {
   let colors = new Array<string>(15);
   for (let i = 0; i < colors.length; i++) {
     colors[i] = "white";
@@ -199,14 +203,7 @@ const calculateWinner = (squares: SlotsSymbol[], bet: number | null) => {
         );
         return {
           winner: true,
-          winnings:
-            (bet! *
-              Math.round(
-                Math.pow(Math.random() * valueCheck, Math.sqrt(2)) *
-                  Number.EPSILON
-              ) *
-              100) /
-            100,
+          winnings: bet * valueCheck,
           colors: colors,
         };
       }
