@@ -65,11 +65,24 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
 }) => {
   const [boardTiles, updateBoardTiles] = useState(new Array(14));
   boardTiles[0] = <BlackjackTile key={0} value={"Dealer's Cards"} />;
-  for (let i = 1; i < 6; i++) {
-    boardTiles[i] = <BlackjackTile key={i} value={""} />;
+  for (let i = 1; i < 7; i++) {
+    boardTiles[i] = (
+      <BlackjackTile
+        key={i}
+        value={
+          dealerHand.cards[i - 1]
+            ? dealerHand.cards[i - 1].value +
+              " of " +
+              dealerHand.cards[i - 1].suit
+            : ""
+        }
+      />
+    );
   }
   boardTiles[7] = <BlackjackTile key={7} value={"Your Cards"} />;
-  boardTiles[6] = <BlackjackTile key={6} value={"Total: 21"} />;
+  boardTiles[6] = (
+    <BlackjackTile key={6} value={`Total: ${dealerHand.total}`} />
+  );
   for (let i = 8; i < 13; i++) {
     boardTiles[i] = (
       <BlackjackTile
@@ -104,19 +117,79 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
       <Box>
         <Button
           onClick={() => {
-            const newHand = playerHand.cards.concat(drawCard());
-            const newTotal = calculateHand(newHand);
-            setPlayerHand({
-              total: newTotal,
-              cards: newHand,
-            });
-            console.log(playerHand);
+            if (playerHand.total <= 21 && dealerHand.cards.length == 0) {
+              const newHand = playerHand.cards.concat(drawCard());
+              const newTotal = calculateHand(newHand);
+              setPlayerHand({
+                total: newTotal,
+                cards: newHand,
+              });
+              if (playerHand.total > 21) {
+                console.log("PLAYER BUST, DEALER WIN");
+              }
+              //console.log(playerHand);
+            }
           }}
         >
           Hit
         </Button>
-        {/* <Button onClick={() => stand()}>Stand</Button>
-        <Button onClick={() => placeBet()}>Place Bet</Button> */}
+        <Button
+          onClick={() => {
+            // while (
+            //   dealerHand.total <= 21 ||
+            //   dealerHand.total <= playerHand.total
+            // ) {
+            if (
+              playerHand.total <= 21 &&
+              dealerHand.total <= 21 &&
+              dealerHand.total <= playerHand.total
+            ) {
+              const newHand = dealerHand.cards.concat(drawCard());
+              const newTotal = calculateHand(newHand);
+              setDealerHand({
+                total: newTotal,
+                cards: newHand,
+              });
+
+              if (dealerHand.total >= playerHand.total){
+                if(dealerHand.total <= 21){
+                  console.log("DEALER WIN");
+                }
+                else if (dealerHand.total > 21) {
+                  console.log("PLAYER WIN");
+                }
+              }
+              //console.log(dealerHand);
+            }
+            // if (
+            //   dealerHand.total <= 21 ||
+            //   dealerHand.total <= playerHand.total
+            // ) {
+            //   setTimeout(loop, 0);
+            // }
+            // }
+          }}
+        >
+          Stand
+        </Button>
+        {/* <Button onClick={() => placeBet()}>Place Bet</Button> */}
+        <Button
+          onClick={() => {
+            let newHand: Card[] = [];
+            // const newHand = Card[] = [];
+            const newTotal = 0;
+            setPlayerHand({
+              total: newTotal,
+              cards: newHand,
+            });
+            setDealerHand({
+              total: newTotal,
+              cards: newHand,
+            });
+          }}
+        >
+          Reset Board (maybe bet button)
+        </Button>
       </Box>
     </>
   );
