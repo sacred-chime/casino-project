@@ -65,7 +65,7 @@ const Board: React.FC<BoardProps> = ({ symbols }) => {
   const [bet, setBet] = useState<number | undefined>();
   const [winnings, setWinnings] = useState(0);
   const [slots, setSlots] = useState<Slots>({
-    squares: new Array(15).fill({ value: 1, symbol: "💩" }),
+    squares: new Array(15).fill({ value: 0, symbol: " " }),
     colors: new Array(15).fill("white"),
   });
 
