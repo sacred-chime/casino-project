@@ -16,6 +16,7 @@ import diceFace4 from "../assets/dice-six-faces-four.png";
 import diceFace5 from "../assets/dice-six-faces-five.png";
 import diceFace6 from "../assets/dice-six-faces-six.png";
 
+// Pairs the unicode dice side to its respective image
 const DICE_FACE: any = {
     '⚀': diceFace1,
     '⚁': diceFace2,
@@ -32,25 +33,16 @@ const getRandomDie = (): any => {
     return diceSides[getRandomInt(0, diceSides.length)];
 };
 
-// This function converts unicode dice to its image
+// This function converts unicode dice to its respective image
 const convertUnicode = (unicode: any): any => {
-    const diceSides = ['⚀','⚁','⚂', '⚃', '⚄','⚅'];
   
     return DICE_FACE[unicode];
 };
-
-// function convertUnicode(unicode: any) {
-//     return DICE_FACE[unicode];
-// }
 
 // This function calculates the sum of two dice sides
 const diceSum = (dice1: any, dice2: any): any => {
     return (dice1 + dice2);
 };
-
-// function diceSum(dice1: any, dice2: any) {
-//     return (dice1 + dice2);
-// }
 
 // This function converts unicode to its integer 
 const getDiceInt = (diceUni: any): any => {
@@ -74,28 +66,6 @@ const getDiceInt = (diceUni: any): any => {
 
     return diceInt;
 };
-
-// function getDiceInt(diceUni: any) {
-//     let diceInt = 0;
-
-//     if (diceUni === '⚀') {
-//         diceInt = 1;
-//     } else if (diceUni === '⚁') {
-//         diceInt = 2;
-//     } else if (diceUni === '⚂') {
-//         diceInt = 3;
-//     } else if (diceUni === '⚃') {
-//         diceInt = 4;
-//     } else if (diceUni === '⚄') {
-//         diceInt = 5;
-//     } else if (diceUni === '⚅'){
-//         diceInt = 6;
-//     } else {
-//         console.log('Wrong input');
-//     }
-
-//     return diceInt;
-// }
 
 const Tile: React.FC<any> = (props: any) => {
 
