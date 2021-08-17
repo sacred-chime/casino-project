@@ -1,77 +1,63 @@
 import { withUrqlClient } from "next-urql";
-import React from "react";
+import React, {useState, useEffect} from "react";
 import { InterfaceUI } from "../components/InterfaceUI";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { useIsAuth } from "../utils/useIsAuth";
 import { Formik, Field, Form, FormikHelpers, useFormik } from 'formik';
-import { chakra } from "@chakra-ui/react"
+import { chakra, color } from "@chakra-ui/react"
+import { parseBody } from "next/dist/server/api-utils";
 //import ReactDOM from 'react-dom';
 //import winners from "../src/patterns.png"
 
-class Square extends React.Component <any, any> {
-  constructor(props: any) {
-    super(props) ;
-    this.state = {
-      bgColor: "white"
-    } ;
-  }
+const values = [10,10,10,10,15,15,15,20,20,30,1,1000,30,30,1000] ;
+const symbols = ['♣','♦','♥','♠','🍉','🍌','🍒','🍓','🍍','👑','💩','💯','💲','💍','📖'] ;
+const lines = [
+    [0, 1, 2, 3, 4],
+    [5, 6, 7, 8, 9],
+    [10, 11, 12, 13, 14],
+    [0, 6, 2, 8, 4],
+    [10, 6, 2, 8, 14],
+    [0, 6, 7, 8, 14],
+    [0, 11, 2, 13, 4],
+    [10, 6, 7, 8, 4],
+    [10, 11, 2, 13, 14],
+    [5, 11, 2, 13, 9],
+    [0, 11, 12, 13, 4],
+    [0, 6, 2, 8, 14],
+    [10, 1, 12, 3, 14],
+    [10, 6, 7, 8, 14],
+    [0, 11, 7, 13, 9]
+  ];
 
-  render() {
-    return (
-      <chakra.div
-        className="square"
-        style={{backgroundColor: this.props.bgColor}}
-      >
-        {this.props.value}
-      </chakra.div>
-    );
-  }
+interface squareProps {
+    bgColor: string;
+    symbol: string;
 }
 
-class Board extends React.Component <any,any> {
+interface boardProps {
+    bet?: number;
+    squares: Array<string>;
+    numArray: Array<number>;
+    colors: Array<string>;
+}
 
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      squares: Array(15).fill(null),
-      numArray: Array(15).fill(null),
-      colors: Array(15).fill('white'),
-      bet: 1,
-    };
-    this.handleChange = this.handleChange.bind(this);
+function renderSquare(i: number,colors:Array<string>,squares:Array<string>) {
+  console.log("rendering")  
+  return (
+      <Square
+        bgColor={colors[i]}
+        symbol={squares[i]}
+      />
+    );
   }
 
-  handleChange(event: any) {
-    this.setState({bet: event.target.value});
-  }
-
-  calculateWinner(squares: Array<string>,bet: number) {
-    let colors = this.state.colors.slice() ;
-    
-    for(let i=0; i<colors.length;i++)
+function calculateWinner(squares: Array<string>,colors: Array<string>,bet: string | undefined) {
+  let bet2 = parseInt(bet!)  
+  for(let i=0; i<colors.length;i++)
     {
       colors[i]='white' ;
     }
     
-    const values = [10,10,10,10,15,15,15,20,20,30,1,1000,30,30,1000] ;
-    const symbols = ['&hearts','&clubs','&spades','&diams','🍉','🍌','🍒','🍓','🍍','👑','💩','💯','💲','💍','📖'] ;
-    const lines = [
-      [0, 1, 2, 3, 4],
-      [5, 6, 7, 8, 9],
-      [10, 11, 12, 13, 14],
-      [0, 6, 2, 8, 4],
-      [10, 6, 2, 8, 14],
-      [0, 6, 7, 8, 14],
-      [0, 11, 2, 13, 4],
-      [10, 6, 7, 8, 4],
-      [10, 11, 2, 13, 14],
-      [5, 11, 2, 13, 9],
-      [0, 11, 12, 13, 4],
-      [0, 6, 2, 8, 14],
-      [10, 1, 12, 3, 14],
-      [10, 6, 7, 8, 14],
-      [0, 11, 7, 13, 9]
-    ];
     for(let i=0; i<lines.length;i++)
     {
       const [a, b, c, d, e] = lines[i];
@@ -87,49 +73,27 @@ class Board extends React.Component <any,any> {
         colors[c] = 'green' ;
         colors[d] = 'green' ;
         colors[e] = 'green' ;
-        return [true, (bet * Math.round(Math.pow(Math.random() * ind1, Math.sqrt(a)) * Number.EPSILON) * 100)/100,colors];
+        return [true, (bet2 * Math.round(Math.pow(Math.random() * ind1, Math.sqrt(a)) * Number.EPSILON) * 100)/100,colors];
       }
     }
     return [false, 0,colors];
   }
 
-  handleClick() {
-    let numArray = [] ;
-    const squares = this.state.squares.slice();
-    const colors = this.state.colors.slice() ;
-    const symbols = ['♠','♣','♥','♦','🍉','🍌','🍒','🍓','🍍','👑','💩','💯','💲','💍','📖'] ;
-    let newColors = [] ;
-    let won = false ;
-    let winnings = 0 ;
-
-    for(let i=0;i<15;i++)
-    {
-      let randomNum = Math.floor(Math.random() * symbols.length)
-      numArray.push(randomNum)
-      squares[i] = symbols[randomNum];
-    }
-    [won, winnings,newColors] = this.calculateWinner(squares,this.state.bet)
-    for(let i=0;i<newColors.length;i++)
-    {
-      colors[i] = newColors[i] ;
-    }
-  
-    this.setState({squares: squares,numArray: numArray, colors: colors});
-  }
-
-  renderSquare(i: number) {
+const Square: React.FC<squareProps> = ({bgColor, symbol}) => {
     return (
-      <Square
-        value={this.state.squares[i]}
-        onClick={() => this.handleClick()}
-        bgColor={this.state.colors[i]}
-      />
-    );
-  }
+        <div className="square" style={{backgroundColor: bgColor}}>{symbol}</div>
+    )
+}
 
-  render() {
+const Board: React.FC<boardProps> = () => {
+
+    const [bet, setBet] = useState<React.ChangeEvent<HTMLInputElement> | null>(null);
+    const [squares, setSquares] = useState(Array(15).fill(null))
+    const [colors, setColors] = useState(Array(15).fill('white'))
+    const [numArray, setArray] = useState(Array(15).fill(null))
+    
     let visible = 'none' ;
-    let [winner, winnings] = this.calculateWinner(this.state.squares,this.state.bet)
+    let [winner, winnings] = calculateWinner(squares,colors,bet?.target.value)
     let status ;
     if(winner)
     {
@@ -141,65 +105,73 @@ class Board extends React.Component <any,any> {
       let phrases = ["Wow you're bad at this", "Better luck next time!", "It's time to stop", "Get help", "Sorry"]
       status = phrases[Math.floor(Math.random() * phrases.length)]
     }
-    
+
     return (
-      <>
-        <chakra.h1>Slot Machine</chakra.h1>
-          <chakra.p>Try to not lose your mortgage :)</chakra.p>
-          <chakra.div>
-            <chakra.div className="board-row">
-              {this.renderSquare(0)}{this.renderSquare(1)}{this.renderSquare(2)}{this.renderSquare(3)}{this.renderSquare(4)}
-            </chakra.div>
-            <chakra.div className="board-row">
-            {this.renderSquare(5)}{this.renderSquare(6)}{this.renderSquare(7)}{this.renderSquare(8)}{this.renderSquare(9)}
-            </chakra.div>
-            <chakra.div className="board-row">
-            {this.renderSquare(10)}{this.renderSquare(11)}{this.renderSquare(12)}{this.renderSquare(13)}{this.renderSquare(14)}
-            </chakra.div>
-          </chakra.div>
-          <br></br>
-          <chakra.form>
-            <chakra.label>
+        <>
+          <h1>Slot Machine</h1>
+            <p>Try to not lose your mortgage :)</p>
+            <div>
+              <div className="board-row">
+                {renderSquare(0,colors,squares)}{renderSquare(1,colors,squares)}{renderSquare(2,colors,squares)}{renderSquare(3,colors,squares)}{renderSquare(4,colors,squares)}
+              </div>
+              <div className="board-row">
+              {renderSquare(5,colors,squares)}{renderSquare(6,colors,squares)}{renderSquare(7,colors,squares)}{renderSquare(8,colors,squares)}{renderSquare(9,colors,squares)}
+              </div>
+              <div className="board-row">
+              {renderSquare(10,colors,squares)}{renderSquare(11,colors,squares)}{renderSquare(12,colors,squares)}{renderSquare(13,colors,squares)}{renderSquare(14,colors,squares)}
+              </div>
+            </div>
+            <br></br>
+            <label>
               How much would you like to bet?
-              <chakra.input type="text" value={this.state.value} onChange={this.handleChange} />
-            </chakra.label>
-            <chakra.input type="submit" value="Submit" />
-          </chakra.form>
-          <chakra.button style={{fontSize:16, position:'relative', left:'42%'}} onClick={() => this.handleClick()}>Spin</chakra.button><br></br><br></br>
-          <chakra.div>{status}</chakra.div><chakra.div style={{display: visible}}>Congrats, you won ${winnings}!</chakra.div>
-      </>
-    );
-  }
+              <input type="number" onChange={(input) => setBet(input)} style={{color: "black"}}/>
+            </label>
+            <br/>
+            <button style={{fontSize:16, position:'relative', left:'42%'}} onClick={() => 
+            {    
+                for(let i=0;i<15;i++)
+                {
+                  let randomNum = Math.floor(Math.random() * symbols.length)
+                  numArray[i] = (randomNum)
+                  squares[i] = symbols[randomNum];
+                }
+                let values = calculateWinner(squares,colors,bet?.target.value)
+                let newColors:any = values[2] ;
+                setColors(newColors)
+                setSquares(squares)
+                setArray(numArray)
+
+            }
+            }>Spin</button><br></br><br></br>
+            <div>{status}</div><div style={{display: visible}}>Congrats, you won ${winnings}!</div>
+        </>
+      );
 }
 
-function Game () {
+const Game: React.FC = () => {
     return (
-      <div className="game">
+        <div className="game">
         <div className="game-board">
-          <Board />
+          <Board squares={Array(15).fill(null)} numArray={Array(15).fill(null)} colors={Array(15).fill('white')}/>
         </div>
         <div className="game-info">
         </div>
       </div>
-    );
+    )
 }
 
-// ========================================
-
-/*ReactDOM.render(
-  <Game />,
-  document.getElementById('root')
-);*/
-
 const Slots: React.FC<{}> = ({}) => {
-  useIsAuth();
-  return (
-    <>
-      <InterfaceUI>
-        <Game />
-      </InterfaceUI>
-    </>
-  );
-};
+    useIsAuth();
+    return (
+      <>
+        <InterfaceUI>
+          <Game />
+        </InterfaceUI>
+      </>
+    );
+  };
+  
+  export default withUrqlClient(createUrqlClient)(Slots)
 
-export default withUrqlClient(createUrqlClient)(Slots)
+
+/**/
