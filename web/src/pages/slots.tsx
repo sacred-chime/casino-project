@@ -163,8 +163,8 @@ const Square: React.FC<SquareProps> = ({ index, bgColor, symbol }) => {
       color={"black"}
       bgColor={bgColor}
       border={"1px solid #999"}
-      height={"200px"}
-      width={"200px"}
+      height={"9vw"}
+      width={"9vw"}
       alignItems={"center"}
       justifyContent={"center"}
       fontSize={"100px"}
@@ -179,7 +179,7 @@ const Square: React.FC<SquareProps> = ({ index, bgColor, symbol }) => {
 const calculateWinner = (squares: SlotsSymbol[], bet: number) => {
   let colors = new Array<string>(15);
   for (let i = 0; i < colors.length; i++) {
-    colors[i] = "white";
+    colors[i] = "mediumseagreen";
   }
   try {
     const splitSquares = arrayChunks(squares, 5);
