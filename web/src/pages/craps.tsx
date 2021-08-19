@@ -9,6 +9,8 @@ import { getRandomInt } from "../utils/getRandomInt";
 import { Image } from "@chakra-ui/react"
 import { Alert, AlertIcon, AlertTitle, AlertDescription } from "@chakra-ui/react"
 import { CloseButton } from "@chakra-ui/react"
+import { FormControl,FormLabel,FormErrorMessage,FormHelperText} from "@chakra-ui/react"
+import { Select } from "@chakra-ui/react"
 import diceFace1 from "../assets/dice-six-faces-one.png";
 import diceFace2 from "../assets/dice-six-faces-two.png";
 import diceFace3 from "../assets/dice-six-faces-three.png";
@@ -196,6 +198,18 @@ Roll number before 7, we all win
     <Button colorScheme="red" onClick={rollDice}>
         Roll Dice
     </Button>
+    </Center>
+    <Center marginTop={"40px"}>
+    <FormControl id="placeBet" width={"25%"}>
+        <Select placeholder="Wager" color="red">
+            <option>$25</option>
+            <option>$50</option>
+            <option>$75</option>
+            <option>$100</option>
+            <option>$125</option>
+            <option>$150</option>
+        </Select>
+    </FormControl>
     </Center>
     </>
     );
