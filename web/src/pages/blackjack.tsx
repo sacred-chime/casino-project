@@ -117,7 +117,7 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
       <Box>
         <Button
           onClick={() => {
-            if (playerHand.total <= 21 && dealerHand.cards.length == 0) {
+            if (playerHand.total < 21 && dealerHand.cards.length == 1) {
               const newHand = playerHand.cards.concat(drawCard());
               const newTotal = calculateHand(newHand);
               setPlayerHand({
@@ -141,7 +141,7 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
             // ) {
             if (
               playerHand.total <= 21 &&
-              dealerHand.total <= 21 &&
+              dealerHand.total < 21 &&
               dealerHand.total <= playerHand.total
             ) {
               const newHand = dealerHand.cards.concat(drawCard());
@@ -175,16 +175,18 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
         {/* <Button onClick={() => placeBet()}>Place Bet</Button> */}
         <Button
           onClick={() => {
-            let newHand: Card[] = [];
-            // const newHand = Card[] = [];
-            const newTotal = 0;
-            setPlayerHand({
-              total: newTotal,
-              cards: newHand,
-            });
+            const newDealerHand: Card[] = [drawCard()];
+            const newDealerTotal = calculateHand(newDealerHand);
             setDealerHand({
-              total: newTotal,
-              cards: newHand,
+              total: newDealerTotal,
+              cards: newDealerHand,
+            });
+
+            const newPlayerHand: Card[] = [drawCard(), drawCard()];
+            const newPlayerTotal = calculateHand(newPlayerHand);
+            setPlayerHand({
+              total: newPlayerTotal,
+              cards: newPlayerHand,
             });
           }}
         >
