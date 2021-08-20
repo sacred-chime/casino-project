@@ -1,31 +1,25 @@
 import { Box, Button, Center, SimpleGrid } from "@chakra-ui/react";
-import { Heading } from "@chakra-ui/react"
+import { Heading } from "@chakra-ui/react";
+import { Image } from "@chakra-ui/react";
+import { Alert, AlertIcon, AlertTitle, AlertDescription } from "@chakra-ui/react";
+import { CloseButton } from "@chakra-ui/react";
+import { FormControl,FormLabel,FormErrorMessage,FormHelperText} from "@chakra-ui/react";
+import { Select } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import React,{useState} from "react";
 import { InterfaceUI } from "../components/InterfaceUI";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { useIsAuth } from "../utils/useIsAuth";
 import { getRandomInt } from "../utils/getRandomInt";
-import { Image } from "@chakra-ui/react"
-import { Alert, AlertIcon, AlertTitle, AlertDescription } from "@chakra-ui/react"
-import { CloseButton } from "@chakra-ui/react"
-import { FormControl,FormLabel,FormErrorMessage,FormHelperText} from "@chakra-ui/react"
-import { Select } from "@chakra-ui/react"
-import diceFace1 from "../assets/dice-six-faces-one.png";
-import diceFace2 from "../assets/dice-six-faces-two.png";
-import diceFace3 from "../assets/dice-six-faces-three.png";
-import diceFace4 from "../assets/dice-six-faces-four.png";
-import diceFace5 from "../assets/dice-six-faces-five.png";
-import diceFace6 from "../assets/dice-six-faces-six.png";
 
 // Pairs the unicode dice side to its respective image
 const DICE_FACE: any = {
-    '⚀': diceFace1,
-    '⚁': diceFace2,
-    '⚂': diceFace3,
-    '⚃': diceFace4,
-    '⚄': diceFace5,
-    '⚅': diceFace6
+    '⚀': "https://upload.wikimedia.org/wikipedia/commons/2/2c/Alea_1.png",
+    '⚁': "https://upload.wikimedia.org/wikipedia/commons/b/b8/Alea_2.png",
+    '⚂': "https://upload.wikimedia.org/wikipedia/commons/2/2f/Alea_3.png",
+    '⚃': "https://upload.wikimedia.org/wikipedia/commons/8/8d/Alea_4.png",
+    '⚄': "https://upload.wikimedia.org/wikipedia/commons/5/55/Alea_5.png",
+    '⚅': "https://upload.wikimedia.org/wikipedia/commons/f/f4/Alea_6.png"
 }
 
 // This function returns a random die
@@ -69,18 +63,33 @@ const getDiceInt = (diceUni: any): any => {
     return diceInt;
 };
 
+// This function determines if a winning alert, losing alert, or nothing should be displayed 
+const EndGame = (props: any) => {
+    const endGameFn = () => {
+      if (props.decider === "WIN") {
+        return <Win></Win>
+      } else if (props.decider === "LOSE") {
+        return <Lose></Lose>
+      } else {
+        return <></>
+      }
+    };
+    
+    return (
+      endGameFn()
+    )
+  }
+
 const Tile: React.FC<any> = (props: any) => {
 
     return (
-      <Box bg="rgb(88,88,88)" height="100px" textAlign="center" paddingTop="38px">
-          {props.value}
-          {<Image src={convertUnicode(props.value)}/>}
+      <Box bg="rgb(26,32,44)" textAlign="center" >
+          <Image src={convertUnicode(props.value)}/>
       </Box>
     );
 };
 
 const Win: React.FC<any> = (props: any) => {
-    console.log("Lose React method");
     return (
         <Alert status="success">
         <AlertIcon />
@@ -97,12 +106,11 @@ const Win: React.FC<any> = (props: any) => {
 };
 
 const Lose: React.FC<any> = (props: any) => {
-    console.log("Lose React method");
     return (
         <Alert status="success">
         <AlertIcon />
         <Box flex="1">
-        <AlertTitle>Success!</AlertTitle>
+        <AlertTitle>LOSE</AlertTitle>
         <AlertDescription display="block">
         Your application has been received. We will review your application and
         respond within the next 48 hours.
@@ -115,8 +123,10 @@ const Lose: React.FC<any> = (props: any) => {
 
 const Board: React.FC<{}> = ({}) => {
 
-    const [diceDisplay, setDiceDisplay] = useState<any>(['START', 'GAME'])
-    
+    const [diceDisplay, setDiceDisplay] = useState<any>([])
+    const [continueState, setContinueState] = useState<any>("")
+    const [marker, setMarker] = useState<any>(-1)
+
     const rollDice = () => {
         let diceSide = [];
         for (let i = 0; i < 2; i++) {
@@ -130,55 +140,31 @@ const Board: React.FC<{}> = ({}) => {
         let diceValue2 = getDiceInt(diceSide[1]);
         let sumOfDice = diceSum(diceValue1,diceValue2);
 
-        console.log("The sum is"+sumOfDice);
 
-        if (sumOfDice === 7 || sumOfDice === 11) {
-            console.log('YOU WON!!!!!!');
-            <Win></Win>
-        } else if (sumOfDice === 2 || sumOfDice === 3 || sumOfDice === 12) {
-            console.log('YOU LOST!!!!!!');
-            <Lose></Lose>
-        } else {
-            console.log('Other');
-        }
-
-        let marker = sumOfDice;
-
-        console.log("This is the marker: "+marker);
-
-        // while(true) {
-        //     // let markerDiceSide = [];
-        //     // for (let i = 0; i < 2; i++) {
-        //     //     const die: any = getRandomDie();
-        //     //     markerDiceSide.push(
-        //     //         die
-        //     //     );
-        //     // }
-        //     // setDiceDisplay(markerDiceSide);
-        //     let markerDiceValue1 = getDiceInt(diceSide[0]);
-        //     let markerDiceValue2 = getDiceInt(diceSide[1]);
-        //     let markerSumOfDice = diceSum(markerDiceValue1,markerDiceValue2);
-
-        //     console.log('Inside marker.... '+ markerSumOfDice);
-
-        //     if (sumOfDice === marker) {
-        //         console.log('YOU WON...marker!!!!!!');
-        //         <Win></Win>
-        //         break;
-        //     } else if (sumOfDice === 7) {
-        //         console.log('YOU LOST...marker!!!!!!');
-        //         <Lose></Lose>
-        //         break;
-        //     }
-        // }
+        if (marker === -1) {
+            if (sumOfDice === 7 || sumOfDice === 11) {
+              setContinueState("WIN");
+              setMarker(-1);
+            } else if (sumOfDice === 2 || sumOfDice === 3 || sumOfDice === 12) {
+                setContinueState("LOSE");
+                setMarker(-1);
+            } else {
+                setContinueState("");
+                setMarker(sumOfDice);
+            }
+        
+          } else {
+            if (sumOfDice === marker) {
+              setContinueState("WIN");
+              setMarker(-1);
+            } else if (sumOfDice === 7) {
+                setContinueState("LOSE");
+                setMarker(-1);
+            } else {
+                setContinueState("");
+            }
+          }
     }
-/*
-If his first throw is 7 or 11 and we bet the pass line we all win
-If first roll is 2, 3, 12 we all loss
-4, 5, 6, 8, 9, 10 
-marker is now on number. Keeps rolling dice until he rolls that number. 
-Roll number before 7, we all win
-*/
     
     return (
     <>
@@ -188,7 +174,7 @@ Roll number before 7, we all win
         width={"25%"}
         marginTop={"50px"}
         padding={"10px"}
-        bg="rgb(88,88,88)"
+        bg="rgb(26,32,44)"
     >
     <SimpleGrid columns={2} rows={1} spacing={2}>
         {diceDisplay.map((die: any, i: any) => (<Tile key={`[0, ${i}]`} value={die}/>))}
@@ -211,6 +197,7 @@ Roll number before 7, we all win
         </Select>
     </FormControl>
     </Center>
+    <EndGame decider={continueState} />
     </>
     );
   };
