@@ -1,10 +1,7 @@
 import { Box, Button, Center, SimpleGrid } from "@chakra-ui/react";
-import { Heading } from "@chakra-ui/react";
-import { Image } from "@chakra-ui/react";
+import { Heading, Image } from "@chakra-ui/react";
 import { Alert, AlertIcon, AlertTitle, AlertDescription } from "@chakra-ui/react";
-import { CloseButton } from "@chakra-ui/react";
-import { FormControl,FormLabel,FormErrorMessage,FormHelperText} from "@chakra-ui/react";
-import { Select } from "@chakra-ui/react";
+import { FormControl, Text, Select} from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import React,{useState} from "react";
 import { InterfaceUI } from "../components/InterfaceUI";
@@ -98,7 +95,7 @@ const Win: React.FC<any> = (props: any) => {
         alignItems="center"
         justifyContent="center"
         textAlign="center"
-        height="200px"
+        height="150px"
         color="rgb(26,32,44)"
         marginTop="20px"
         >
@@ -122,7 +119,7 @@ const Lose: React.FC<any> = (props: any) => {
         alignItems="center"
         justifyContent="center"
         textAlign="center"
-        height="200px"
+        height="150px"
         color="rgb(26,32,44)"
         marginTop="20px"
         >
@@ -214,6 +211,11 @@ const Board: React.FC<{}> = ({}) => {
     </FormControl>
     </Center>
     <EndGame decider={continueState} />
+    <Text marginTop={"150px"} fontSize="lg">Rules: Place your wager and roll the dice. If your first roll is a 7 or 11, you win. 
+    If your first roll is a 2, 3, or 12, you lose. Rolling any other number 
+    (4, 5, 6, 8, 9, 10) means that a marker is set to your number, and you will continue rolling the dice. 
+    To win, keep rolling the dice until you roll the marker number. However, if you roll a 7 before rolling the marker number, you lose.
+    </Text>
     </>
     );
   };
