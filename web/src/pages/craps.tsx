@@ -91,32 +91,48 @@ const Tile: React.FC<any> = (props: any) => {
 
 const Win: React.FC<any> = (props: any) => {
     return (
-        <Alert status="success">
-        <AlertIcon />
-        <Box flex="1">
-        <AlertTitle>Success!</AlertTitle>
-        <AlertDescription display="block">
-        Your application has been received. We will review your application and
-        respond within the next 48 hours.
-        </AlertDescription>
-        </Box>
-        <CloseButton position="absolute" right="8px" top="8px" />
+        <Alert
+        status="success"
+        variant="subtle"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        textAlign="center"
+        height="200px"
+        color="rgb(26,32,44)"
+        marginTop="20px"
+        >
+            <AlertIcon boxSize="40px" mr={0} />
+            <AlertTitle mt={4} mb={1} fontSize="lg">
+                You won!!!
+            </AlertTitle>
+            <AlertDescription maxWidth="sm">
+                Place your wager and roll the dice to start a new game!
+            </AlertDescription>
         </Alert>
     );
 };
 
 const Lose: React.FC<any> = (props: any) => {
     return (
-        <Alert status="success">
-        <AlertIcon />
-        <Box flex="1">
-        <AlertTitle>LOSE</AlertTitle>
-        <AlertDescription display="block">
-        Your application has been received. We will review your application and
-        respond within the next 48 hours.
-        </AlertDescription>
-        </Box>
-        <CloseButton position="absolute" right="8px" top="8px" />
+        <Alert
+        status="error"
+        variant="subtle"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        textAlign="center"
+        height="200px"
+        color="rgb(26,32,44)"
+        marginTop="20px"
+        >
+            <AlertIcon boxSize="40px" mr={0} />
+            <AlertTitle mt={4} mb={1} fontSize="lg">
+                You lost!!!
+            </AlertTitle>
+            <AlertDescription maxWidth="sm">
+                Place your wager and roll the dice to start a new game!
+            </AlertDescription>
         </Alert>
     );
 };
