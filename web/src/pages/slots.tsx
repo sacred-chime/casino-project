@@ -4,7 +4,7 @@ import {
   Center,
   Flex,
   Heading,
-  Image,
+  VStack,
   SimpleGrid,
   Text,
   Table,
@@ -13,6 +13,8 @@ import {
   Tr,
   Td,
   Tbody,
+  HStack,
+  Image,
 } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import React, { useState } from "react";
@@ -25,12 +27,13 @@ import { useIsAuth } from "../utils/useIsAuth";
 import { lines } from "../utils/slots/slotsLines"
 import { useMeQuery } from "../generated/graphql";
 import { useChangeFundsMutation } from "../generated/graphql"
-/*
-const SampleComponent = () => (
-  <div>
-    <img src={require('./slotsPaylines.png')} alt="Test" />
-  </div>
-);*/
+import * as logo from '../utils/slots/slots_paylines_3.png';
+
+const img = logo.default.src;
+
+const Comp = ()=> {
+    return <Image src={String(img)}  />
+}
 
 // INTERFACES
 interface SquareProps {
@@ -55,14 +58,35 @@ const Slots: React.FC<{}> = ({}) => {
   return (
     <>
       <InterfaceUI>
-        <Box>
-          <Box>
-            <Heading as={"h1"}>How to Play</Heading>
+        <HStack spacing="24px">
+          <Box
+            top="-5px"
+            p={5}
+            shadow="md"
+            borderWidth="1px"
+            flex="1"
+            borderRadius="sm"
+          >
+          <Heading fontSize="xl">How to Play</Heading>
+          <Text s="10px" mt={4}>
             Enter the amount you want to bet in the box below.
             Note: Minimum bet = 1, default bet = 1
             After entering your bet, simply press the play button!
             To win, match 5 shapes with the same value to any of the 15
-            patterns below, and win your bet * value of the symbols!
+            patterns below, and win your bet * value of the symbols!</Text>
+            <br></br>
+            <Comp></Comp>
+          </Box>
+          
+          <Game />
+          <Box
+            top="-5px"
+            p={5}
+            shadow="md"
+            borderWidth="1px"
+            flex="1"
+            borderRadius="sm"
+          >
             <Table>
               <Thead>
                 <Tr>
@@ -98,8 +122,7 @@ const Slots: React.FC<{}> = ({}) => {
               </Tbody>
             </Table>
           </Box>
-        </Box>
-        <Game />
+            </HStack>
       </InterfaceUI>
     </>
   );
@@ -193,42 +216,44 @@ const Board: React.FC<BoardProps> = ({ symbols }) => {
             style={{ color: "black" }}
           />
         <Center my={"10px"}>
-          <Button onClick={() => {
+          <Button  onClick={() => {
               document.getElementById("loseMessage")!.hidden=false;
               document.getElementById("winMessage")!.hidden=true;
               let newSquares = new Array<SlotsSymbol>(15);
               for (let i = 0; i < 15; i++) {
                 newSquares[i] = symbols[getRandomInt(0, symbols.length)];
               }
+              console.log(data!.me!.money)
               values = calculateWinner(newSquares, bet!);
               setWinnings(values.winnings)
               let newColors = values.colors;
-              if(data!.me!.money < bet!)
+              if(data!.me!.money < bet! || bet! <= 0)
               {
-                alert('Not enough funds to bet current amount, please try again.')
+                alert('Invalid bet amount, please try again.')
                 setSlots({
-                  squares: newSquares,
+                  squares: Array(15).fill(newSquares),
                   colors: Array(15).fill("white")
                 })
                 setWinnings(0)
+                changeFunds({
+                  fundDelta: winnings
+                })
               }
-              
-              if(values.winner)
+              else
               {
-                document.getElementById("loseMessage")!.hidden = true;
-                document.getElementById("winMessage")!.hidden = false;
+                if(values.winner)
+                {
+                  document.getElementById("loseMessage")!.hidden = true;
+                  document.getElementById("winMessage")!.hidden = false;
+                }
+                changeFunds({
+                  fundDelta: winnings
+                })
+                setSlots({
+                  squares: newSquares,
+                  colors: newColors,
+                });
               }
-              console.log(data?.me?.money)
-              changeFunds({
-                fundDelta: winnings
-              })
-              console.log(data?.me?.money)
-              console.log(' ')
-              setSlots({
-                squares: newSquares,
-                colors: newColors,
-              });
-              
             }}
           >
             Spin
@@ -298,7 +323,7 @@ const calculateWinner = (squares: SlotsSymbol[], bet: number) => {
         );
         return {
           winner: true,
-          winnings: 1,
+          winnings: ind1 * bet,
           colors: colors,
         };
       }
