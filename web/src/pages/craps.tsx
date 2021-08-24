@@ -20,25 +20,25 @@ const DICE_FACE: any = {
 }
 
 // This function returns a random die
-const getRandomDie = (): any => {
+const getRandomDie = (): string => {
     const diceSides = ['⚀','⚁','⚂', '⚃', '⚄','⚅'];
   
     return diceSides[getRandomInt(0, diceSides.length)];
 };
 
 // This function converts unicode dice to its respective image
-const convertUnicode = (unicode: any): any => {
+const convertUnicode = (unicode: string): string => {
   
     return DICE_FACE[unicode];
 };
 
 // This function calculates the sum of two dice sides
-const diceSum = (dice1: any, dice2: any): any => {
+const diceSum = (dice1: number, dice2: number): number => {
     return (dice1 + dice2);
 };
 
 // This function converts unicode to its integer 
-const getDiceInt = (diceUni: any): any => {
+const getDiceInt = (diceUni: string): number => {
     let diceInt = 0;
 
     if (diceUni === '⚀') {
@@ -86,7 +86,7 @@ const Tile: React.FC<any> = (props: any) => {
     );
 };
 
-const Win: React.FC<any> = (props: any) => {
+const Win: React.FC<any> = () => {
     return (
         <Alert
         status="success"
@@ -110,7 +110,7 @@ const Win: React.FC<any> = (props: any) => {
     );
 };
 
-const Lose: React.FC<any> = (props: any) => {
+const Lose: React.FC<any> = () => {
     return (
         <Alert
         status="error"
@@ -136,14 +136,14 @@ const Lose: React.FC<any> = (props: any) => {
 
 const Board: React.FC<{}> = ({}) => {
 
-    const [diceDisplay, setDiceDisplay] = useState<any>([])
-    const [continueState, setContinueState] = useState<any>("")
-    const [marker, setMarker] = useState<any>(-1)
+    const [diceDisplay, setDiceDisplay] = useState<Array<string>>([])
+    const [continueState, setContinueState] = useState<string>("")
+    const [marker, setMarker] = useState<number>(-1)
 
     const rollDice = () => {
         let diceSide = [];
         for (let i = 0; i < 2; i++) {
-            const die: any = getRandomDie();
+            const die: string = getRandomDie();
             diceSide.push(
               die
             );
@@ -190,7 +190,7 @@ const Board: React.FC<{}> = ({}) => {
         bg="rgb(26,32,44)"
     >
     <SimpleGrid columns={2} rows={1} spacing={2}>
-        {diceDisplay.map((die: any, i: any) => (<Tile key={`[0, ${i}]`} value={die}/>))}
+        {diceDisplay.map((die: string, i: number) => (<Tile key={`[0, ${i}]`} value={die}/>))}
     </SimpleGrid>
     </Box>
     <Center marginTop={"40px"}>
