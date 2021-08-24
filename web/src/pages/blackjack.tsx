@@ -116,10 +116,9 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
     winner: false,
     loser: false,
     bet: 0,
-    message: "In Progress.",
+    message: "Game in progress.",
     stand: false,
   };
-
 
   return (
     <>
@@ -135,7 +134,8 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
         </SimpleGrid>
       </Box>
       <Box>
-        <Button id="Hit"
+        <Button
+          id="Hit"
           onClick={() => {
             if (playerHand.total < 21 && dealerHand.cards.length == 1) {
               const newHand = playerHand.cards.concat(drawCard());
@@ -152,7 +152,8 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
         >
           Hit
         </Button>
-        <Button id="Stand"
+        <Button
+          id="Stand"
           onClick={() => {
             if (
               playerHand.total <= 21 &&
@@ -164,7 +165,7 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
               setDealerHand({
                 total: newTotal,
                 cards: newHand,
-              }); 
+              });
             }
             status.stand = true;
             status = calculateWinner(playerHand, dealerHand, status);
@@ -174,7 +175,8 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
           Stand
         </Button>
         {/* <Button onClick={() => placeBet()}>Place Bet</Button> */}
-        <Button id = "Bet"
+        <Button
+          id="Bet"
           onClick={() => {
             const newDealerHand: Card[] = [drawCard()];
             const newDealerTotal = calculateHand(newDealerHand);
@@ -192,7 +194,6 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
             //todo
             document.getElementById("Stand")!.hidden = false;
             document.getElementById("Hit")!.hidden = false;
-          
           }}
         >
           Reset Board (maybe bet button)
@@ -201,9 +202,9 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
       <Box id="status" my={"10px"}>
         {status.message}
       </Box>
-      <Box id="payout" my={"10px"}>
+      {/* <Box id="payout" my={"10px"}>
         Congrats, you won ${status.bet}!
-      </Box>
+      </Box> */}
     </>
   );
 };
@@ -314,7 +315,7 @@ const calculateWinner = (
       winner: false,
       loser: false,
       bet: status.bet,
-      message: "In Progress, please stand again.",
+      message: "Game in progress, please stand again.",
       stand: status.stand,
     };
   }
@@ -322,7 +323,7 @@ const calculateWinner = (
     winner: false,
     loser: false,
     bet: status.bet,
-    message: "In Progress please hit or stand.",
+    message: "Game in progress please hit or stand.",
     stand: status.stand,
   };
 };
