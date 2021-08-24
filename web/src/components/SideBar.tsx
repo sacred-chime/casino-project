@@ -57,9 +57,9 @@ export const SideBar: React.FC<{}> = ({}) => {
               Slots
             </NavItem>
           </NextLink>
-          <NextLink href="/craps">
+          <NextLink href="/roulette">
             <NavItem pl="12" py="2">
-              Craps
+              Roulette
             </NavItem>
           </NextLink>
         </Collapse>
