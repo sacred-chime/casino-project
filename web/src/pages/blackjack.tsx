@@ -5,6 +5,9 @@ import { InterfaceUI } from "../components/InterfaceUI";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { getRandomInt } from "../utils/getRandomInt";
 import { useIsAuth } from "../utils/useIsAuth";
+import { useMeQuery } from "../generated/graphql";
+import { useChangeFundsMutation } from "../generated/graphql";
+import { Fa500Px } from "react-icons/fa";
 
 // INTERFACES / TYPE DEFINITIONS
 interface Card {
@@ -26,6 +29,14 @@ interface BlackjackBoardProps {
 
 interface BlackjackTileProps {
   value: String;
+}
+
+interface CasinoProps {
+  winner: boolean;
+  loser: boolean;
+  bet: number;
+  message: String;
+  stand: boolean;
 }
 
 // MAIN COMPONENT
@@ -101,6 +112,15 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
     <BlackjackTile key={13} value={`Total: ${playerHand.total}`} />
   );
 
+  let status: CasinoProps = {
+    winner: false,
+    loser: false,
+    bet: 0,
+    message: "In Progress.",
+    stand: false,
+  };
+
+
   return (
     <>
       <Box
@@ -115,7 +135,7 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
         </SimpleGrid>
       </Box>
       <Box>
-        <Button
+        <Button id="Hit"
           onClick={() => {
             if (playerHand.total < 21 && dealerHand.cards.length == 1) {
               const newHand = playerHand.cards.concat(drawCard());
@@ -124,21 +144,16 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
                 total: newTotal,
                 cards: newHand,
               });
-              if (playerHand.total > 21) {
-                console.log("PLAYER BUST, DEALER WIN");
-              }
-              //console.log(playerHand);
             }
+            status.stand = false;
+            status = calculateWinner(playerHand, dealerHand, status);
+            console.log(status.message);
           }}
         >
           Hit
         </Button>
-        <Button
+        <Button id="Stand"
           onClick={() => {
-            // while (
-            //   dealerHand.total <= 21 ||
-            //   dealerHand.total <= playerHand.total
-            // ) {
             if (
               playerHand.total <= 21 &&
               dealerHand.total < 21 &&
@@ -149,31 +164,17 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
               setDealerHand({
                 total: newTotal,
                 cards: newHand,
-              });
-
-              if (dealerHand.total >= playerHand.total){
-                if(dealerHand.total <= 21){
-                  console.log("DEALER WIN");
-                }
-                else if (dealerHand.total > 21) {
-                  console.log("PLAYER WIN");
-                }
-              }
-              //console.log(dealerHand);
+              }); 
             }
-            // if (
-            //   dealerHand.total <= 21 ||
-            //   dealerHand.total <= playerHand.total
-            // ) {
-            //   setTimeout(loop, 0);
-            // }
-            // }
+            status.stand = true;
+            status = calculateWinner(playerHand, dealerHand, status);
+            console.log(status.message);
           }}
         >
           Stand
         </Button>
         {/* <Button onClick={() => placeBet()}>Place Bet</Button> */}
-        <Button
+        <Button id = "Bet"
           onClick={() => {
             const newDealerHand: Card[] = [drawCard()];
             const newDealerTotal = calculateHand(newDealerHand);
@@ -188,10 +189,20 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
               total: newPlayerTotal,
               cards: newPlayerHand,
             });
+            //todo
+            document.getElementById("Stand")!.hidden = false;
+            document.getElementById("Hit")!.hidden = false;
+          
           }}
         >
           Reset Board (maybe bet button)
         </Button>
+      </Box>
+      <Box id="status" my={"10px"}>
+        {status.message}
+      </Box>
+      <Box id="payout" my={"10px"}>
+        Congrats, you won ${status.bet}!
       </Box>
     </>
   );
@@ -254,4 +265,64 @@ const calculateHand = (hand: Card[]) => {
     }
   }
   return total;
+};
+
+const calculateWinner = (
+  player: PlayerHandProps,
+  dealer: PlayerHandProps,
+  status: CasinoProps
+) => {
+  if (player.total > 21) {
+    return {
+      winner: false,
+      loser: true,
+      bet: status.bet,
+      message: "Dealer win by Player Bust.",
+      stand: status.stand,
+    };
+  }
+  if (dealer.total > 21) {
+    return {
+      winner: true,
+      loser: false,
+      bet: status.bet,
+      message: "Player win by Dealer Bust.",
+      stand: status.stand,
+    };
+  }
+  if (status.stand) {
+    if (dealer.total >= player.total) {
+      if (dealer.total <= 21) {
+        return {
+          winner: false,
+          loser: true,
+          bet: status.bet,
+          message: "Dealer win by total.",
+          stand: status.stand,
+        };
+      } else if (dealer.total > 21) {
+        return {
+          winner: true,
+          loser: false,
+          bet: status.bet,
+          message: "Player win by Dealer Bust.",
+          stand: status.stand,
+        };
+      }
+    }
+    return {
+      winner: false,
+      loser: false,
+      bet: status.bet,
+      message: "In Progress, please stand again.",
+      stand: status.stand,
+    };
+  }
+  return {
+    winner: false,
+    loser: false,
+    bet: status.bet,
+    message: "In Progress please hit or stand.",
+    stand: status.stand,
+  };
 };
