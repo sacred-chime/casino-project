@@ -60,12 +60,22 @@ const getDiceInt = (diceUni: string): number => {
     return diceInt;
 };
 
+enum Decider {
+    Win = "WIN",
+    Lose = "LOSE",
+    Nothing = "",
+}
+  
+interface EndGameProps {
+    decider: Decider;
+}
+
 // This function determines if a winning alert, losing alert, or nothing should be displayed 
-const EndGame = (props: any) => {
+const EndGame: React.FC<EndGameProps> = ({ decider }) => {
     const endGameFn = () => {
-      if (props.decider === "WIN") {
+      if (decider === "WIN") {
         return <Win></Win>
-      } else if (props.decider === "LOSE") {
+      } else if (decider === "LOSE") {
         return <Lose></Lose>
       } else {
         return <></>
@@ -137,7 +147,7 @@ const Lose: React.FC<any> = () => {
 const Board: React.FC<{}> = ({}) => {
 
     const [diceDisplay, setDiceDisplay] = useState<Array<string>>([])
-    const [continueState, setContinueState] = useState<string>("")
+    const [continueState, setContinueState] = useState<Decider>(Decider.Nothing)
     const [marker, setMarker] = useState<number>(-1)
 
     const rollDice = () => {
@@ -156,25 +166,25 @@ const Board: React.FC<{}> = ({}) => {
 
         if (marker === -1) {
             if (sumOfDice === 7 || sumOfDice === 11) {
-              setContinueState("WIN");
+              setContinueState(Decider.Win);
               setMarker(-1);
             } else if (sumOfDice === 2 || sumOfDice === 3 || sumOfDice === 12) {
-                setContinueState("LOSE");
+                setContinueState(Decider.Lose);
                 setMarker(-1);
             } else {
-                setContinueState("");
+                setContinueState(Decider.Nothing);
                 setMarker(sumOfDice);
             }
         
           } else {
             if (sumOfDice === marker) {
-              setContinueState("WIN");
+              setContinueState(Decider.Win);
               setMarker(-1);
             } else if (sumOfDice === 7) {
-                setContinueState("LOSE");
+                setContinueState(Decider.Lose);
                 setMarker(-1);
             } else {
-                setContinueState("");
+                setContinueState(Decider.Nothing);
             }
           }
     }
