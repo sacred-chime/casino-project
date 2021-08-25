@@ -8,6 +8,7 @@ import {
 } from "urql";
 import { pipe, tap } from "wonka";
 import {
+  ChangeFundsMutation,
   LoginMutation,
   LogoutMutation,
   MeDocument,
@@ -95,6 +96,22 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
         },
         updates: {
           Mutation: {
+            changeFunds: (_result, args, cache, info) => {
+              betterUpdateQuery<ChangeFundsMutation, MeQuery>(
+                cache,
+                { query: MeDocument },
+                _result,
+                (result, query) => {
+                  if (result.changeFunds.errors) {
+                    return query;
+                  } else {
+                    return {
+                      me: result.changeFunds.user,
+                    };
+                  }
+                }
+              );
+            },
             logout: (_result, args, cache, info) => {
               betterUpdateQuery<LogoutMutation, MeQuery>(
                 cache,
