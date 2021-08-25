@@ -3,7 +3,6 @@ import {
   Button,
   ButtonGroup,
   Flex,
-  Input,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
@@ -18,7 +17,6 @@ import { InterfaceUI } from "../components/InterfaceUI";
 import {
   useChangeFundsMutation,
   useCreateBetMutation,
-  useMeQuery,
 } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { getRandomInt } from "../utils/getRandomInt";
@@ -127,16 +125,17 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
     <BlackjackTile key={13} value={`Total: ${playerHand.total}`} />
   );
 
-  const [{ data, fetching }] = useMeQuery();
   const [, changeFunds] = useChangeFundsMutation();
   const [, createBet] = useCreateBetMutation();
-  const [betted, setBetted] = useState(false);
-  const [status, setStatus] = useState<CasinoProps>({
-    winner: false,
-    loser: false,
-    bet: 0,
-    message: "Please place bet",
-    stand: false,
+  const [betted, setBetted] = useState(() => false);
+  const [status, setStatus] = useState<CasinoProps>(() => {
+    return {
+      winner: false,
+      loser: false,
+      bet: 0,
+      message: "Please place bet.",
+      stand: false,
+    };
   });
 
   const defaultHand = (): PlayerHandProps => {
@@ -160,6 +159,7 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
         <ButtonGroup spacing={3} mb={"5px"}>
           <Button
             key="Hit"
+            isDisabled={!betted}
             onClick={() => {
               if (betted) {
                 if (playerHand.total < 21 && dealerHand.cards.length == 1) {
@@ -236,6 +236,7 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
           </Button>
           <Button
             key="Stand"
+            isDisabled={!betted}
             onClick={() => {
               if (betted) {
                 if (
@@ -256,14 +257,13 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
                     };
                   });
                 }
-                let testWin = null;
+
                 setStatus((prevState) => {
                   const calcWin = calculateWinner(
                     playerHand,
                     dealerHand,
                     prevState
                   );
-                  testWin = calcWin;
                   return {
                     winner: calcWin.winner,
                     loser: calcWin.loser,
@@ -322,8 +322,9 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
           </Button>
           <Button
             key="Bet"
+            hidden={betted}
             onClick={() => {
-              if (!betted) {
+              if (!betted && status.bet > 0) {
                 setDealerHand(() => {
                   const newDealerHand: Card[] = [drawCard()];
                   const newDealerTotal = calculateHand(newDealerHand);
@@ -366,7 +367,7 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
             hidden={betted}
             type="number"
             width={"150px"}
-            defaultValue={1}
+            defaultValue={0}
             min={1}
             max={1000000}
             onChange={(input) => {
@@ -376,7 +377,7 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
                   winner: false,
                   loser: false,
                   bet: parseInt(input),
-                  message: " ",
+                  message: "Please place bet.",
                 };
               });
             }}
