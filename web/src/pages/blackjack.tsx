@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   ButtonGroup,
+  Center,
   Flex,
   NumberDecrementStepper,
   NumberIncrementStepper,
@@ -146,262 +147,264 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
   };
 
   return (
-    <>
-      <Text mt={"30px"} mb={"10px"}>
-        Dealer must stand on 17 and draw to 16.
-      </Text>
-      <Box m={"auto"} width={"100%"} p={"10px"} bg="lightskyblue">
-        <SimpleGrid columns={7} spacing={2}>
-          {boardTiles}
-        </SimpleGrid>
-      </Box>
-      <Box my={"10px"}>
-        <ButtonGroup spacing={3} mb={"5px"}>
-          <Button
-            key="Hit"
-            isDisabled={!betted}
-            onClick={() => {
-              if (betted) {
-                if (playerHand.total < 21 && dealerHand.cards.length == 1) {
-                  setPlayerHand(() => {
-                    const newHand = playerHand.cards.concat(drawCard());
-                    const newTotal = calculateHand(newHand);
-                    return {
-                      total: newTotal,
-                      cards: newHand,
-                    };
-                  });
-                }
-                setStatus((prevState) => {
-                  const calcWin = calculateWinner(
-                    playerHand,
-                    dealerHand,
-                    prevState
-                  );
-                  return {
-                    winner: calcWin.winner,
-                    loser: calcWin.loser,
-                    bet: calcWin.bet,
-                    message: calcWin.message,
-                    stand: false,
-                  };
-                });
-
-                if (status.winner || status.loser) {
-                  setDealerHand(defaultHand());
-                  setPlayerHand(defaultHand());
-                  if (status.winner && status.loser) {
-                    changeFunds({
-                      fundDelta: status.bet,
-                    });
-                    createBet({
-                      input: {
-                        game: "Blackjack",
-                        wager: status.bet,
-                        payout: status.bet,
-                      },
-                    });
-                  } else if (status.winner) {
-                    changeFunds({
-                      fundDelta: status.bet * 2,
-                    });
-                    createBet({
-                      input: {
-                        game: "Blackjack",
-                        wager: status.bet,
-                        payout: status.bet * 2,
-                      },
-                    });
-                  } else if (status.loser) {
-                    changeFunds({
-                      fundDelta: 0,
-                    });
-                    createBet({
-                      input: {
-                        game: "Blackjack",
-                        wager: status.bet,
-                        payout: 0,
-                      },
+    <Center id="center" mt={"10vh"}>
+      <Box id="box" width={"90%"}>
+        <Text mt={"30px"} mb={"10px"}>
+          Dealer must stand on 17 and draw to 16.
+        </Text>
+        <Box m={"auto"} width={"100%"} p={"10px"} bg="lightskyblue">
+          <SimpleGrid columns={7} spacing={2}>
+            {boardTiles}
+          </SimpleGrid>
+        </Box>
+        <Box my={"10px"}>
+          <ButtonGroup spacing={3} mb={"5px"}>
+            <Button
+              key="Hit"
+              isDisabled={!betted}
+              onClick={() => {
+                if (betted) {
+                  if (playerHand.total < 21 && dealerHand.cards.length == 1) {
+                    setPlayerHand(() => {
+                      const newHand = playerHand.cards.concat(drawCard());
+                      const newTotal = calculateHand(newHand);
+                      return {
+                        total: newTotal,
+                        cards: newHand,
+                      };
                     });
                   }
                   setStatus((prevState) => {
-                    return { ...prevState, winner: false, loser: false };
+                    const calcWin = calculateWinner(
+                      playerHand,
+                      dealerHand,
+                      prevState
+                    );
+                    return {
+                      winner: calcWin.winner,
+                      loser: calcWin.loser,
+                      bet: calcWin.bet,
+                      message: calcWin.message,
+                      stand: false,
+                    };
                   });
-                  setBetted(() => false);
-                }
-              }
-            }}
-          >
-            Hit
-          </Button>
-          <Button
-            key="Stand"
-            isDisabled={!betted}
-            onClick={() => {
-              if (betted) {
-                if (
-                  playerHand.total <= 21 &&
-                  dealerHand.total < 21 &&
-                  dealerHand.total < 17
-                ) {
-                  setDealerHand(() => {
-                    let newTotal = dealerHand.total;
-                    let newHand = dealerHand.cards;
-                    while (newTotal < 17) {
-                      newHand = newHand.concat(drawCard());
-                      newTotal = calculateHand(newHand);
+
+                  if (status.winner || status.loser) {
+                    setDealerHand(defaultHand());
+                    setPlayerHand(defaultHand());
+                    if (status.winner && status.loser) {
+                      changeFunds({
+                        fundDelta: status.bet,
+                      });
+                      createBet({
+                        input: {
+                          game: "Blackjack",
+                          wager: status.bet,
+                          payout: status.bet,
+                        },
+                      });
+                    } else if (status.winner) {
+                      changeFunds({
+                        fundDelta: status.bet * 2,
+                      });
+                      createBet({
+                        input: {
+                          game: "Blackjack",
+                          wager: status.bet,
+                          payout: status.bet * 2,
+                        },
+                      });
+                    } else if (status.loser) {
+                      changeFunds({
+                        fundDelta: 0,
+                      });
+                      createBet({
+                        input: {
+                          game: "Blackjack",
+                          wager: status.bet,
+                          payout: 0,
+                        },
+                      });
                     }
-                    return {
-                      total: newTotal,
-                      cards: newHand,
-                    };
-                  });
+                    setStatus((prevState) => {
+                      return { ...prevState, winner: false, loser: false };
+                    });
+                    setBetted(() => false);
+                  }
                 }
-
-                setStatus((prevState) => {
-                  const calcWin = calculateWinner(
-                    playerHand,
-                    dealerHand,
-                    prevState
-                  );
-                  return {
-                    winner: calcWin.winner,
-                    loser: calcWin.loser,
-                    bet: calcWin.bet,
-                    message: calcWin.message,
-                    stand: true,
-                  };
-                });
-
-                if (status.winner || status.loser) {
-                  setDealerHand(defaultHand());
-                  setPlayerHand(defaultHand());
-                  if (status.winner && status.loser) {
-                    changeFunds({
-                      fundDelta: status.bet,
-                    });
-                    createBet({
-                      input: {
-                        game: "Blackjack",
-                        wager: status.bet,
-                        payout: status.bet,
-                      },
-                    });
-                  } else if (status.winner) {
-                    changeFunds({
-                      fundDelta: status.bet * 2,
-                    });
-                    createBet({
-                      input: {
-                        game: "Blackjack",
-                        wager: status.bet,
-                        payout: status.bet * 2,
-                      },
-                    });
-                  } else if (status.loser) {
-                    changeFunds({
-                      fundDelta: 0,
-                    });
-                    createBet({
-                      input: {
-                        game: "Blackjack",
-                        wager: status.bet,
-                        payout: 0,
-                      },
+              }}
+            >
+              Hit
+            </Button>
+            <Button
+              key="Stand"
+              isDisabled={!betted}
+              onClick={() => {
+                if (betted) {
+                  if (
+                    playerHand.total <= 21 &&
+                    dealerHand.total < 21 &&
+                    dealerHand.total < 17
+                  ) {
+                    setDealerHand(() => {
+                      let newTotal = dealerHand.total;
+                      let newHand = dealerHand.cards;
+                      while (newTotal < 17) {
+                        newHand = newHand.concat(drawCard());
+                        newTotal = calculateHand(newHand);
+                      }
+                      return {
+                        total: newTotal,
+                        cards: newHand,
+                      };
                     });
                   }
+
                   setStatus((prevState) => {
-                    return { ...prevState, winner: false, loser: false };
+                    const calcWin = calculateWinner(
+                      playerHand,
+                      dealerHand,
+                      prevState
+                    );
+                    return {
+                      winner: calcWin.winner,
+                      loser: calcWin.loser,
+                      bet: calcWin.bet,
+                      message: calcWin.message,
+                      stand: true,
+                    };
                   });
-                  setBetted(() => false);
+
+                  if (status.winner || status.loser) {
+                    setDealerHand(defaultHand());
+                    setPlayerHand(defaultHand());
+                    if (status.winner && status.loser) {
+                      changeFunds({
+                        fundDelta: status.bet,
+                      });
+                      createBet({
+                        input: {
+                          game: "Blackjack",
+                          wager: status.bet,
+                          payout: status.bet,
+                        },
+                      });
+                    } else if (status.winner) {
+                      changeFunds({
+                        fundDelta: status.bet * 2,
+                      });
+                      createBet({
+                        input: {
+                          game: "Blackjack",
+                          wager: status.bet,
+                          payout: status.bet * 2,
+                        },
+                      });
+                    } else if (status.loser) {
+                      changeFunds({
+                        fundDelta: 0,
+                      });
+                      createBet({
+                        input: {
+                          game: "Blackjack",
+                          wager: status.bet,
+                          payout: 0,
+                        },
+                      });
+                    }
+                    setStatus((prevState) => {
+                      return { ...prevState, winner: false, loser: false };
+                    });
+                    setBetted(() => false);
+                  }
                 }
-              }
-            }}
-          >
-            Stand
-          </Button>
-          <Button
-            key="Bet"
-            hidden={betted}
-            onClick={() => {
-              if (!betted && status.bet > 0) {
-                setDealerHand(() => {
-                  const newDealerHand: Card[] = [drawCard()];
-                  const newDealerTotal = calculateHand(newDealerHand);
-                  return {
-                    total: newDealerTotal,
-                    cards: newDealerHand,
-                  };
-                });
-                setPlayerHand(() => {
-                  const newPlayerHand: Card[] = [drawCard(), drawCard()];
-                  const newPlayerTotal = calculateHand(newPlayerHand);
-                  return {
-                    total: newPlayerTotal,
-                    cards: newPlayerHand,
-                  };
-                });
-                changeFunds({
-                  fundDelta: -status.bet,
-                });
+              }}
+            >
+              Stand
+            </Button>
+            <Button
+              key="Bet"
+              hidden={betted}
+              onClick={() => {
+                if (!betted && status.bet > 0) {
+                  setDealerHand(() => {
+                    const newDealerHand: Card[] = [drawCard()];
+                    const newDealerTotal = calculateHand(newDealerHand);
+                    return {
+                      total: newDealerTotal,
+                      cards: newDealerHand,
+                    };
+                  });
+                  setPlayerHand(() => {
+                    const newPlayerHand: Card[] = [drawCard(), drawCard()];
+                    const newPlayerTotal = calculateHand(newPlayerHand);
+                    return {
+                      total: newPlayerTotal,
+                      cards: newPlayerHand,
+                    };
+                  });
+                  changeFunds({
+                    fundDelta: -status.bet,
+                  });
+                  setStatus((prevState) => {
+                    return {
+                      ...prevState,
+                      winner: false,
+                      loser: false,
+                      message: "Game in progress please hit or stand.",
+                    };
+                  });
+                  setBetted(() => true);
+                }
+              }}
+            >
+              Place Bet
+            </Button>
+          </ButtonGroup>
+          <Flex>
+            <Text hidden={betted} mr={"5px"}>
+              How much would you like to bet?
+            </Text>
+            <NumberInput
+              hidden={betted}
+              type="number"
+              width={"150px"}
+              defaultValue={0}
+              min={1}
+              max={1000000}
+              onChange={(input) => {
                 setStatus((prevState) => {
                   return {
                     ...prevState,
                     winner: false,
                     loser: false,
-                    message: "Game in progress please hit or stand.",
+                    bet: parseInt(input),
+                    message: "Please place bet.",
                   };
                 });
-                setBetted(() => true);
-              }
-            }}
-          >
-            Place Bet
-          </Button>
-        </ButtonGroup>
-        <Flex>
-          <Text hidden={betted} mr={"5px"}>
-            How much would you like to bet?
-          </Text>
-          <NumberInput
-            hidden={betted}
-            type="number"
-            width={"150px"}
-            defaultValue={0}
-            min={1}
-            max={1000000}
-            onChange={(input) => {
-              setStatus((prevState) => {
-                return {
-                  ...prevState,
-                  winner: false,
-                  loser: false,
-                  bet: parseInt(input),
-                  message: "Please place bet.",
-                };
-              });
-            }}
-          >
-            <NumberInputField />
-            <NumberInputStepper>
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
-          </NumberInput>
-        </Flex>
+              }}
+            >
+              <NumberInputField />
+              <NumberInputStepper>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+              </NumberInputStepper>
+            </NumberInput>
+          </Flex>
+        </Box>
+        <Box key="status" my={"10px"}>
+          {status.message}
+        </Box>
       </Box>
-      <Box key="status" my={"10px"}>
-        {status.message}
-      </Box>
-    </>
+    </Center>
   );
 };
 
 // TILE COMPONENT
-const BlackjackTile: React.FC<BlackjackTileProps> = (props) => {
+const BlackjackTile: React.FC<BlackjackTileProps> = ({ value }) => {
   return (
-    <Box bg="gray.800" height="100px" textAlign="center" paddingTop="50px">
-      {props.value}
+    <Box bg="gray.800" height="100px" lineHeight="100px" textAlign="center">
+      {value}
     </Box>
   );
 };
