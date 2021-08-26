@@ -1,12 +1,3 @@
-<<<<<<< Updated upstream
-import { Box } from "@chakra-ui/react";
-import { withUrqlClient } from "next-urql";
-import React from "react";
-import { InterfaceUI } from "../components/InterfaceUI";
-import { createUrqlClient } from "../utils/createUrqlClient";
-import { useIsAuth } from "../utils/useIsAuth";
-
-=======
 import {
   Box,
   Button,
@@ -62,29 +53,22 @@ interface Slots {
 }
 
 // MAIN COMPONENT
->>>>>>> Stashed changes
 const Slots: React.FC<{}> = ({}) => {
   useIsAuth();
   return (
     <>
       <InterfaceUI>
-<<<<<<< Updated upstream
-        <Box>Slots</Box>
-=======
         <HStack spacing="24px">
           <HowToPlaySlots />
           <Game />
           <SlotsSymbolTable />
         </HStack>
->>>>>>> Stashed changes
       </InterfaceUI>
     </>
   );
 };
 
 export default withUrqlClient(createUrqlClient)(Slots);
-<<<<<<< Updated upstream
-=======
 
 // GAME COMPONENT
 const Game: React.FC<{}> = ({}) => {
@@ -396,4 +380,3 @@ const calculateWinner = (squares: SlotsSymbol[], bet: number) => {
     return { winner: false, winnings: 0, colors: colors };
   }
 };
->>>>>>> Stashed changes
