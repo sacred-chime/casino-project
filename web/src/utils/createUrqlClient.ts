@@ -1,8 +1,14 @@
-import { cacheExchange } from "@urql/exchange-graphcache";
+import { cacheExchange, Resolver } from "@urql/exchange-graphcache";
 import Router from "next/router";
-import { dedupExchange, Exchange, fetchExchange } from "urql";
+import {
+  dedupExchange,
+  Exchange,
+  fetchExchange,
+  stringifyVariables,
+} from "urql";
 import { pipe, tap } from "wonka";
 import {
+  ChangeFundsMutation,
   LoginMutation,
   LogoutMutation,
   MeDocument,
@@ -25,6 +31,42 @@ const errorExchange: Exchange =
     );
   };
 
+const cursorPagination = (): Resolver => {
+  return (_parent, fieldArgs, cache, info) => {
+    const { parentKey: entityKey, fieldName } = info;
+    const allFields = cache.inspectFields(entityKey);
+    const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
+    const size = fieldInfos.length;
+    if (size === 0) {
+      return undefined;
+    }
+
+    const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
+    const isItInTheCache = cache.resolve(
+      cache.resolveFieldByKey(entityKey, fieldKey) as string,
+      "bets"
+    );
+    info.partial = !isItInTheCache;
+    let hasMore = true;
+    const results: string[] = [];
+    fieldInfos.forEach((fi) => {
+      const key = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string;
+      const data = cache.resolve(key, "bets") as string[];
+      const _hasMore = cache.resolve(key, "hasMore");
+      if (!_hasMore) {
+        hasMore = _hasMore as boolean;
+      }
+      results.push(...data);
+    });
+
+    return {
+      __typename: "PaginatedBets",
+      hasMore,
+      bets: results,
+    };
+  };
+};
+
 export const createUrqlClient = (ssrExchange: any, ctx: any) => {
   let cookie = "";
   if (isServer()) {
@@ -44,8 +86,32 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
     exchanges: [
       dedupExchange,
       cacheExchange({
+        keys: {
+          PaginatedBets: () => null,
+        },
+        resolvers: {
+          Query: {
+            bets: cursorPagination(),
+          },
+        },
         updates: {
           Mutation: {
+            changeFunds: (_result, args, cache, info) => {
+              betterUpdateQuery<ChangeFundsMutation, MeQuery>(
+                cache,
+                { query: MeDocument },
+                _result,
+                (result, query) => {
+                  if (result.changeFunds.errors) {
+                    return query;
+                  } else {
+                    return {
+                      me: result.changeFunds.user,
+                    };
+                  }
+                }
+              );
+            },
             logout: (_result, args, cache, info) => {
               betterUpdateQuery<LogoutMutation, MeQuery>(
                 cache,

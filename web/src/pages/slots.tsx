@@ -1,3 +1,4 @@
+
 import {
   Box,
   Button,
@@ -15,9 +16,6 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
-import { withUrqlClient } from "next-urql";
-import React, { useState } from "react";
-import { InterfaceUI } from "../components/InterfaceUI";
 import {
   useChangeFundsMutation,
   useCreateBetMutation,
