@@ -403,7 +403,14 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
 // TILE COMPONENT
 const BlackjackTile: React.FC<BlackjackTileProps> = ({ value }) => {
   return (
-    <Box bg="gray.800" height="100px" lineHeight="100px" textAlign="center">
+    <Box
+      bg="gray.800"
+      fontWeight={value.includes("A of") ? "bold" : "normal"}
+      color={value.includes("A of") ? "mediumseagreen" : "white"}
+      height="100px"
+      lineHeight="100px"
+      textAlign="center"
+    >
       {value}
     </Box>
   );
