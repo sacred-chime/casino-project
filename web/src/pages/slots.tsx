@@ -4,36 +4,38 @@ import {
   Center,
   Flex,
   Heading,
-  VStack,
-  SimpleGrid,
-  Text,
-  Table,
-  Thead,
-  Th,
-  Tr,
-  Td,
-  Tbody,
   HStack,
   Image,
+  SimpleGrid,
+  Table,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
 } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import React, { useState } from "react";
 import { InterfaceUI } from "../components/InterfaceUI";
+import {
+  useChangeFundsMutation,
+  useCreateBetMutation,
+  useMeQuery,
+} from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { getRandomInt } from "../utils/getRandomInt";
 import { arrayChunks } from "../utils/slots/arrayChunks";
+import { lines } from "../utils/slots/slotsLines";
 import { SlotsSymbol, slotsSymbols } from "../utils/slots/slotsSymbols";
+import * as logo from "../utils/slots/slots_paylines_3.png";
 import { useIsAuth } from "../utils/useIsAuth";
-import { lines } from "../utils/slots/slotsLines"
-import { useMeQuery } from "../generated/graphql";
-import { useChangeFundsMutation } from "../generated/graphql"
-import * as logo from '../utils/slots/slots_paylines_3.png';
 
 const img = logo.default.src;
 
-const Comp = ()=> {
-    return <Image src={String(img)}  />
-}
+const Comp = () => {
+  return <Image src={String(img)} />;
+};
 
 // INTERFACES
 interface SquareProps {
@@ -67,17 +69,17 @@ const Slots: React.FC<{}> = ({}) => {
             flex="1"
             borderRadius="sm"
           >
-          <Heading fontSize="xl">How to Play</Heading>
-          <Text s="10px" mt={4}>
-            Enter the amount you want to bet in the box below.
-            Note: Minimum bet = 1, default bet = 1
-            After entering your bet, simply press the play button!
-            To win, match 5 shapes with the same value to any of the 15
-            patterns below, and win your bet * value of the symbols!</Text>
+            <Heading fontSize="xl">How to Play</Heading>
+            <Text s="10px" mt={4}>
+              Enter the amount you want to bet in the box below. Note: Minimum
+              bet = 1, default bet = 1 After entering your bet, simply press the
+              play button! To win, match 5 shapes with the same value to any of
+              the 15 patterns below, and win your bet * value of the symbols!
+            </Text>
             <br></br>
             <Comp></Comp>
           </Box>
-          
+
           <Game />
           <Box
             top="-5px"
@@ -122,7 +124,7 @@ const Slots: React.FC<{}> = ({}) => {
               </Tbody>
             </Table>
           </Box>
-            </HStack>
+        </HStack>
       </InterfaceUI>
     </>
   );
@@ -144,7 +146,8 @@ const Game: React.FC<{}> = ({}) => {
 // GAME BOARD COMPONENT
 const Board: React.FC<BoardProps> = ({ symbols }) => {
   const [{ data, fetching }] = useMeQuery();
-  const [, changeFunds] = useChangeFundsMutation() ;
+  const [, changeFunds] = useChangeFundsMutation();
+  const [, createBet] = useCreateBetMutation();
   const [bet, setBet] = useState<number | undefined>();
   const [winnings, setWinnings] = useState(0);
   const [slots, setSlots] = useState<Slots>({
@@ -203,52 +206,65 @@ const Board: React.FC<BoardProps> = ({ symbols }) => {
         >
           {slotsRows}
         </Box>
-        {<label style={{ marginRight: '5px'}} >
-          How much would you like to bet?
-          </label>}
-          <input
-            type="number"
-            min="1"
-            onChange={(input) => {
-              document.getElementById("loseMessage")!.hidden=true;
-              setBet(parseInt(input.target.value))
-            }}
-            style={{ color: "black" }}
-          />
+        {
+          <label style={{ marginRight: "5px" }}>
+            How much would you like to bet?
+          </label>
+        }
+        <input
+          type="number"
+          min="1"
+          onChange={(input) => {
+            document.getElementById("loseMessage")!.hidden = true;
+            setBet(parseInt(input.target.value));
+          }}
+          style={{ color: "black" }}
+        />
         <Center my={"10px"}>
-          <Button  onClick={() => {
-              document.getElementById("loseMessage")!.hidden=false;
-              document.getElementById("winMessage")!.hidden=true;
+          <Button
+            onClick={() => {
+              document.getElementById("loseMessage")!.hidden = false;
+              document.getElementById("winMessage")!.hidden = true;
               let newSquares = new Array<SlotsSymbol>(15);
               for (let i = 0; i < 15; i++) {
                 newSquares[i] = symbols[getRandomInt(0, symbols.length)];
               }
-              console.log(data!.me!.money)
+              console.log(data!.me!.money);
               values = calculateWinner(newSquares, bet!);
-              setWinnings(values.winnings)
+              setWinnings(values.winnings);
               let newColors = values.colors;
-              if(data!.me!.money < bet! || bet! <= 0)
-              {
-                alert('Invalid bet amount, please try again.')
+              if (data!.me!.money < bet! || bet! <= 0) {
+                alert("Invalid bet amount, please try again.");
                 setSlots({
                   squares: Array(15).fill(newSquares),
-                  colors: Array(15).fill("white")
-                })
-                setWinnings(0)
+                  colors: Array(15).fill("white"),
+                });
+                setWinnings(0);
                 changeFunds({
-                  fundDelta: winnings
-                })
-              }
-              else
-              {
-                if(values.winner)
-                {
+                  fundDelta: winnings,
+                });
+                createBet({
+                  input: {
+                    game: "Slots",
+                    wager: bet!,
+                    payout: winnings,
+                  },
+                });
+              } else {
+                if (values.winner) {
                   document.getElementById("loseMessage")!.hidden = true;
                   document.getElementById("winMessage")!.hidden = false;
                 }
                 changeFunds({
-                  fundDelta: winnings
-                })
+                  fundDelta: winnings,
+                });
+                createBet({
+                  input: {
+                    game: "Slots",
+                    wager: bet!,
+                    payout: winnings,
+                  },
+                });
                 setSlots({
                   squares: newSquares,
                   colors: newColors,
@@ -259,10 +275,14 @@ const Board: React.FC<BoardProps> = ({ symbols }) => {
             Spin
           </Button>
         </Center>
-        <Box id="loseMessage" my={"10px"}>{status}</Box>
-        <Box id="winMessage" my={"10px"}>Congrats, you won ${winnings}!</Box>
+        <Box id="loseMessage" my={"10px"}>
+          {status}
+        </Box>
+        <Box id="winMessage" my={"10px"}>
+          Congrats, you won ${winnings}!
+        </Box>
       </Box>
-      </Box>
+    </Box>
   );
 };
 
@@ -290,22 +310,25 @@ const Square: React.FC<SquareProps> = ({ index, bgColor, symbol }) => {
 // HELPER FUNCTIONS
 const calculateWinner = (squares: SlotsSymbol[], bet: number) => {
   let colors = new Array<string>(15);
-  const values = [10,10,10,10,15,15,15,20,20,30,1,1000,30,30,1000] ;
+  const values = [
+    10, 10, 10, 10, 15, 15, 15, 20, 20, 30, 1, 1000, 30, 30, 1000,
+  ];
   for (let i = 0; i < colors.length; i++) {
     colors[i] = "white";
   }
   try {
-    let symbolsList = [] ;
-    for(let i=0; i<slotsSymbols().length;i++) { symbolsList.push(slotsSymbols()[i].symbol)}
+    let symbolsList = [];
+    for (let i = 0; i < slotsSymbols().length; i++) {
+      symbolsList.push(slotsSymbols()[i].symbol);
+    }
     const splitSquares = arrayChunks(squares, 5);
-    for(let i=0; i<lines().length;i++)
-    {
+    for (let i = 0; i < lines().length; i++) {
       const [a, b, c, d, e] = lines()[i];
-      let ind1 = values[symbolsList.indexOf(squares[a].symbol)] ;
-      let ind2 = values[symbolsList.indexOf(squares[b].symbol)] ;
-      let ind3 = values[symbolsList.indexOf(squares[c].symbol)] ;
-      let ind4 = values[symbolsList.indexOf(squares[d].symbol)] ;
-      let ind5 = values[symbolsList.indexOf(squares[e].symbol)] ;
+      let ind1 = values[symbolsList.indexOf(squares[a].symbol)];
+      let ind2 = values[symbolsList.indexOf(squares[b].symbol)];
+      let ind3 = values[symbolsList.indexOf(squares[c].symbol)];
+      let ind4 = values[symbolsList.indexOf(squares[d].symbol)];
+      let ind5 = values[symbolsList.indexOf(squares[e].symbol)];
 
       if (ind1 === ind2 && ind2 === ind3 && ind3 === ind4 && ind4 === ind5) {
         colors[a] = "mediumseagreen";
