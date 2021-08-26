@@ -300,6 +300,15 @@ export class UserResolver {
           },
         ],
       };
+    } else if (newMoney < 0.0) {
+      return {
+        errors: [
+          {
+            field: "money",
+            message: "you're broke",
+          },
+        ],
+      };
     }
 
     user.money = newMoney;
