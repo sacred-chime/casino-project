@@ -1,4 +1,4 @@
-import { cacheExchange, Resolver } from "@urql/exchange-graphcache";
+import { Cache, cacheExchange, Resolver } from "@urql/exchange-graphcache";
 import Router from "next/router";
 import {
   dedupExchange,
@@ -67,6 +67,15 @@ const cursorPagination = (): Resolver => {
   };
 };
 
+const invalidateAllBets = (cache: Cache) => {
+  const allFields = cache.inspectFields("Query");
+  console.log(allFields);
+  const fieldInfos = allFields.filter((info) => info.fieldName === "bets");
+  fieldInfos.forEach((fi) => {
+    cache.invalidate("Query", "bets", fi.arguments || {});
+  });
+};
+
 export const createUrqlClient = (ssrExchange: any, ctx: any) => {
   let cookie = "";
   if (isServer()) {
@@ -111,6 +120,9 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                   }
                 }
               );
+            },
+            createBet: (_result, args, cache, info) => {
+              invalidateAllBets(cache);
             },
             logout: (_result, args, cache, info) => {
               betterUpdateQuery<LogoutMutation, MeQuery>(
