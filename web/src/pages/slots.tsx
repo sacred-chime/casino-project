@@ -35,7 +35,6 @@ import { lines } from "../utils/slots/slotsLines";
 import { SlotsSymbol, slotsSymbols } from "../utils/slots/slotsSymbols";
 import { useIsAuth } from "../utils/useIsAuth";
 
-
 // INTERFACES
 interface SquareProps {
   index: number;
@@ -253,7 +252,6 @@ const Square: React.FC<SquareProps> = ({ index, bgColor, symbol }) => {
     </Flex>
   );
 };
-
 
 // HOW TO PLAY
 const HowToPlaySlots: React.FC<{}> = ({}) => {
