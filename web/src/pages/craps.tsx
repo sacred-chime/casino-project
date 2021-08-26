@@ -8,6 +8,7 @@ import { InterfaceUI } from "../components/InterfaceUI";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { useIsAuth } from "../utils/useIsAuth";
 import { getRandomInt } from "../utils/getRandomInt";
+import {useChangeFundsMutation, useCreateBetMutation,} from "../generated/graphql";
 
 // Pairs the unicode dice side to its respective image
 const DICE_FACE: any = {
@@ -85,7 +86,7 @@ const EndGame: React.FC<EndGameProps> = ({ decider }) => {
     return (
       endGameFn()
     )
-  }
+}
 
 const Tile: React.FC<any> = (props: any) => {
 
@@ -149,8 +150,28 @@ const Board: React.FC<{}> = ({}) => {
     const [diceDisplay, setDiceDisplay] = useState<Array<string>>([])
     const [continueState, setContinueState] = useState<Decider>(Decider.Nothing)
     const [marker, setMarker] = useState<number>(-1)
+    const [bet, setBet] = useState<number>(0)
+
+    const [, changeFunds] = useChangeFundsMutation();
+    const [, createBet] = useCreateBetMutation();
 
     const rollDice = () => {
+        let wager = document.getElementById("placeBet");
+        const wagerVal = wager.value;
+        console.log("WagerVal: "+wagerVal);
+        setBet(wagerVal);
+        console.log("Bet: "+bet);
+
+        if (bet === 0) {
+            createBet({
+                input: {
+                  game: "Craps",
+                  wager: wagerVal,
+                  payout: wagerVal * 2,
+                },
+            });
+        }
+
         let diceSide = [];
         for (let i = 0; i < 2; i++) {
             const die: string = getRandomDie();
@@ -168,9 +189,13 @@ const Board: React.FC<{}> = ({}) => {
             if (sumOfDice === 7 || sumOfDice === 11) {
               setContinueState(Decider.Win);
               setMarker(-1);
+              setBet(0);
+              changeFunds({fundDelta: wagerVal*2});
             } else if (sumOfDice === 2 || sumOfDice === 3 || sumOfDice === 12) {
                 setContinueState(Decider.Lose);
                 setMarker(-1);
+                setBet(0);
+                changeFunds({fundDelta: 0});
             } else {
                 setContinueState(Decider.Nothing);
                 setMarker(sumOfDice);
@@ -180,9 +205,13 @@ const Board: React.FC<{}> = ({}) => {
             if (sumOfDice === marker) {
               setContinueState(Decider.Win);
               setMarker(-1);
+              setBet(0);
+              changeFunds({fundDelta: wagerVal*2});
             } else if (sumOfDice === 7) {
                 setContinueState(Decider.Lose);
                 setMarker(-1);
+                setBet(0);
+                changeFunds({fundDelta: 0});
             } else {
                 setContinueState(Decider.Nothing);
             }
