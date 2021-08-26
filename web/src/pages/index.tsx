@@ -140,14 +140,14 @@ const BetsTable: React.FC<betsTableProps> = ({
                   <Td textAlign={"right"}>{moneyFormatter(b.wager)}</Td>
                   <Td
                     textAlign={"right"}
-                    color={b.payout / b.wager > 2 ? "#79d45a" : ""}
+                    color={b.payout / b.wager >= 2 ? "#79d45a" : ""}
                     fontWeight={b.payout / b.wager > 2 ? "bold" : ""}
                   >
                     {(b.payout / b.wager).toFixed(2) + "x"}
                   </Td>
                   <Td
                     textAlign={"right"}
-                    color={b.payout / b.wager > 2 ? "#79d45a" : ""}
+                    color={b.payout / b.wager >= 2 ? "#79d45a" : ""}
                     fontWeight={b.payout / b.wager > 2 ? "bold" : ""}
                   >
                     {moneyFormatter(b.payout)}

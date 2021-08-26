@@ -10,9 +10,9 @@ export const CarouselData = [
     href: "/slots",
   },
   {
-    image: "/images/roulette.jpg",
-    caption: "Roulette",
-    href: "/roulette",
+    image: "/images/craps.jpg",
+    caption: "Craps",
+    href: "/craps",
   },
   {
     image: "/images/minesweeper.jpg",

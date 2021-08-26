@@ -1,4 +1,3 @@
-
 import {
   Box,
   Button,
@@ -6,7 +5,11 @@ import {
   Flex,
   Heading,
   HStack,
-  Image,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
   SimpleGrid,
   Table,
   Tbody,
@@ -16,6 +19,10 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
+import { withUrqlClient } from "next-urql";
+import NextImage from "next/image";
+import React, { useState } from "react";
+import { InterfaceUI } from "../components/InterfaceUI";
 import {
   useChangeFundsMutation,
   useCreateBetMutation,
@@ -26,14 +33,8 @@ import { getRandomInt } from "../utils/getRandomInt";
 import { arrayChunks } from "../utils/slots/arrayChunks";
 import { lines } from "../utils/slots/slotsLines";
 import { SlotsSymbol, slotsSymbols } from "../utils/slots/slotsSymbols";
-import * as logo from "../utils/slots/slots_paylines_3.png";
 import { useIsAuth } from "../utils/useIsAuth";
 
-const img = logo.default.src;
-
-const Comp = () => {
-  return <Image src={String(img)} />;
-};
 
 // INTERFACES
 interface SquareProps {
@@ -59,69 +60,9 @@ const Slots: React.FC<{}> = ({}) => {
     <>
       <InterfaceUI>
         <HStack spacing="24px">
-          <Box
-            top="-5px"
-            p={5}
-            shadow="md"
-            borderWidth="1px"
-            flex="1"
-            borderRadius="sm"
-          >
-            <Heading fontSize="xl">How to Play</Heading>
-            <Text s="10px" mt={4}>
-              Enter the amount you want to bet in the box below. Note: Minimum
-              bet = 1, default bet = 1 After entering your bet, simply press the
-              play button! To win, match 5 shapes with the same value to any of
-              the 15 patterns below, and win your bet * value of the symbols!
-            </Text>
-            <br></br>
-            <Comp></Comp>
-          </Box>
-
+          <HowToPlaySlots />
           <Game />
-          <Box
-            top="-5px"
-            p={5}
-            shadow="md"
-            borderWidth="1px"
-            flex="1"
-            borderRadius="sm"
-          >
-            <Table>
-              <Thead>
-                <Tr>
-                  <Th>Symbols</Th>
-                  <Th>Value</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                <Tr>
-                  <Td>💩</Td>
-                  <Td>1</Td>
-                </Tr>
-                <Tr>
-                  <Td>♣️,♦,♥,♠</Td>
-                  <Td>10</Td>
-                </Tr>
-                <Tr>
-                  <Td>🍌,🍒,🍓,🍍</Td>
-                  <Td>15</Td>
-                </Tr>
-                <Tr>
-                  <Td>👑,📖</Td>
-                  <Td>20</Td>
-                </Tr>
-                <Tr>
-                  <Td>💲,💍</Td>
-                  <Td>30</Td>
-                </Tr>
-                <Tr>
-                  <Td>💯</Td>
-                  <Td>1000</Td>
-                </Tr>
-              </Tbody>
-            </Table>
-          </Box>
+          <SlotsSymbolTable />
         </HStack>
       </InterfaceUI>
     </>
@@ -176,6 +117,7 @@ const Board: React.FC<BoardProps> = ({ symbols }) => {
     for (let col = 0; col < 5; col++) {
       slotsRow.push(
         <Square
+          key={`row-${row},col-${col}`}
           index={row * 5 + col}
           bgColor={slots.colors[row * 5 + col]}
           symbol={slots.squares[row * 5 + col].symbol}
@@ -204,81 +146,88 @@ const Board: React.FC<BoardProps> = ({ symbols }) => {
         >
           {slotsRows}
         </Box>
-        {
-          <label style={{ marginRight: "5px" }}>
-            How much would you like to bet?
-          </label>
-        }
-        <input
-          type="number"
-          min="1"
-          onChange={(input) => {
-            document.getElementById("loseMessage")!.hidden = true;
-            setBet(parseInt(input.target.value));
-          }}
-          style={{ color: "black" }}
-        />
         <Center my={"10px"}>
-          <Button
-            onClick={() => {
-              document.getElementById("loseMessage")!.hidden = false;
-              document.getElementById("winMessage")!.hidden = true;
-              let newSquares = new Array<SlotsSymbol>(15);
-              for (let i = 0; i < 15; i++) {
-                newSquares[i] = symbols[getRandomInt(0, symbols.length)];
-              }
-              console.log(data!.me!.money);
-              values = calculateWinner(newSquares, bet!);
-              setWinnings(values.winnings);
-              let newColors = values.colors;
-              if (data!.me!.money < bet! || bet! <= 0) {
-                alert("Invalid bet amount, please try again.");
-                setSlots({
-                  squares: Array(15).fill(newSquares),
-                  colors: Array(15).fill("white"),
-                });
-                setWinnings(0);
-                changeFunds({
-                  fundDelta: winnings,
-                });
-                createBet({
-                  input: {
-                    game: "Slots",
-                    wager: bet!,
-                    payout: winnings,
-                  },
-                });
-              } else {
-                if (values.winner) {
-                  document.getElementById("loseMessage")!.hidden = true;
-                  document.getElementById("winMessage")!.hidden = false;
-                }
-                changeFunds({
-                  fundDelta: winnings,
-                });
-                createBet({
-                  input: {
-                    game: "Slots",
-                    wager: bet!,
-                    payout: winnings,
-                  },
-                });
-                setSlots({
-                  squares: newSquares,
-                  colors: newColors,
-                });
-              }
-            }}
-          >
-            Spin
-          </Button>
+          <Flex flexDir={"column"}>
+            <Flex>
+              <Text mr={3}>How much would you like to bet?</Text>
+              <NumberInput
+                type="number"
+                defaultValue={0}
+                min={1}
+                max={1000000}
+                onChange={(input) => {
+                  setBet(() => {
+                    return parseInt(input);
+                  });
+                }}
+              >
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+            </Flex>
+            <Center mt={3}>
+              <Button
+                onClick={() => {
+                  let newSquares = new Array<SlotsSymbol>(15);
+                  for (let i = 0; i < 15; i++) {
+                    newSquares[i] = symbols[getRandomInt(0, symbols.length)];
+                  }
+                  console.log(data!.me!.money);
+                  values = calculateWinner(newSquares, bet!);
+                  setWinnings(() => {
+                    return values.winnings;
+                  });
+                  let newColors = values.colors;
+                  if (data!.me!.money < bet! || bet! <= 0) {
+                    alert("Invalid bet amount, please try again.");
+                    setSlots(() => {
+                      return {
+                        squares: Array(15).fill(newSquares),
+                        colors: Array(15).fill("white"),
+                      };
+                    });
+                    setWinnings(0);
+                  } else {
+                    changeFunds({
+                      fundDelta: -bet!,
+                    });
+                    createBet({
+                      input: {
+                        game: "Slots",
+                        wager: bet!,
+                        payout: winnings,
+                      },
+                    });
+                    if (winnings > 0) {
+                      changeFunds({
+                        fundDelta: winnings,
+                      });
+                    }
+                    setSlots(() => {
+                      return {
+                        squares: newSquares,
+                        colors: newColors,
+                      };
+                    });
+                  }
+                }}
+              >
+                Spin
+              </Button>
+            </Center>
+            <Center>
+              <Box key="loseMessage" hidden={values.winner} my={"10px"}>
+                {status}
+              </Box>
+              <Box key="winMessage" hidden={!values.winner} my={"10px"}>
+                Congrats, you won ${winnings}!
+              </Box>
+            </Center>
+          </Flex>
         </Center>
-        <Box id="loseMessage" my={"10px"}>
-          {status}
-        </Box>
-        <Box id="winMessage" my={"10px"}>
-          Congrats, you won ${winnings}!
-        </Box>
       </Box>
     </Box>
   );
@@ -302,6 +251,85 @@ const Square: React.FC<SquareProps> = ({ index, bgColor, symbol }) => {
     >
       {symbol}
     </Flex>
+  );
+};
+
+
+// HOW TO PLAY
+const HowToPlaySlots: React.FC<{}> = ({}) => {
+  return (
+    <Box
+      top="-5px"
+      p={5}
+      shadow="md"
+      borderWidth="1px"
+      flex="1"
+      borderRadius="sm"
+    >
+      <Heading fontSize="xl">How to Play</Heading>
+      <Text s="10px" mt={4}>
+        Enter the amount you want to bet in the box below. Note: Minimum bet =
+        1, default bet = 1 After entering your bet, simply press the play
+        button! To win, match 5 shapes with the same value to any of the 15
+        patterns below, and win your bet * value of the symbols!
+      </Text>
+      <Box mt={2}>
+        <NextImage
+          src="/images/slots_paylines_3.png"
+          height={"600px"}
+          width={"600px"}
+        />
+      </Box>
+    </Box>
+  );
+};
+
+// SYMBOL TABLE
+const SlotsSymbolTable: React.FC<{}> = ({}) => {
+  return (
+    <Box
+      top="-5px"
+      p={5}
+      shadow="md"
+      borderWidth="1px"
+      flex="1"
+      borderRadius="sm"
+    >
+      <Table>
+        <Thead>
+          <Tr>
+            <Th>Symbols</Th>
+            <Th>Value</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          <Tr>
+            <Td>💩</Td>
+            <Td>1</Td>
+          </Tr>
+          <Tr>
+            <Td>♣️,♦,♥,♠</Td>
+            <Td>10</Td>
+          </Tr>
+          <Tr>
+            <Td>🍌,🍒,🍓,🍍</Td>
+            <Td>15</Td>
+          </Tr>
+          <Tr>
+            <Td>👑,📖</Td>
+            <Td>20</Td>
+          </Tr>
+          <Tr>
+            <Td>💲,💍</Td>
+            <Td>30</Td>
+          </Tr>
+          <Tr>
+            <Td>💯</Td>
+            <Td>1000</Td>
+          </Tr>
+        </Tbody>
+      </Table>
+    </Box>
   );
 };
 
@@ -349,7 +377,7 @@ const calculateWinner = (squares: SlotsSymbol[], bet: number) => {
         };
       }
     }
-    return { winner: false, winnings: -bet, colors: colors };
+    return { winner: false, winnings: 0, colors: colors };
   } catch {
     return { winner: false, winnings: 0, colors: colors };
   }
