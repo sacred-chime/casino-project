@@ -18,6 +18,7 @@ import { InterfaceUI } from "../components/InterfaceUI";
 import {
   useChangeFundsMutation,
   useCreateBetMutation,
+  useMeQuery,
 } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { getRandomInt } from "../utils/getRandomInt";
@@ -125,7 +126,7 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
   boardTiles[13] = (
     <BlackjackTile key={13} value={`Total: ${playerHand.total}`} />
   );
-
+  const [{ data, fetching }] = useMeQuery();
   const [, changeFunds] = useChangeFundsMutation();
   const [, createBet] = useCreateBetMutation();
   const [betted, setBetted] = useState(() => false);
@@ -326,7 +327,11 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
               key="Bet"
               hidden={betted}
               onClick={() => {
-                if (!betted && status.bet > 0) {
+                if (
+                  !betted &&
+                  status.bet > 0 &&
+                  data!.me!.money >= status.bet!
+                ) {
                   setDealerHand(() => {
                     const newDealerHand: Card[] = [drawCard()];
                     const newDealerTotal = calculateHand(newDealerHand);
@@ -355,6 +360,8 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
                     };
                   });
                   setBetted(() => true);
+                } else {
+                  alert("Please input bet amount or add funds.");
                 }
               }}
             >
