@@ -8,6 +8,7 @@ import { InterfaceUI } from "../components/InterfaceUI";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { useIsAuth } from "../utils/useIsAuth";
 import { getRandomInt } from "../utils/getRandomInt";
+import {useChangeFundsMutation, useCreateBetMutation,} from "../generated/graphql";
 
 // Pairs the unicode dice side to its respective image
 const DICE_FACE: any = {
@@ -149,8 +150,15 @@ const Board: React.FC<{}> = ({}) => {
     const [diceDisplay, setDiceDisplay] = useState<Array<string>>([])
     const [continueState, setContinueState] = useState<Decider>(Decider.Nothing)
     const [marker, setMarker] = useState<number>(-1)
+    const [betted, setBetted] = useState<Boolean>(false);
+
+    const [, changeFunds] = useChangeFundsMutation();
+    const [, createBet] = useCreateBetMutation();
 
     const rollDice = () => {
+        let wager = document.getElementById("placeBet");
+        const wagerVal = wager.value;
+
         let diceSide = [];
         for (let i = 0; i < 2; i++) {
             const die: string = getRandomDie();
@@ -168,9 +176,11 @@ const Board: React.FC<{}> = ({}) => {
             if (sumOfDice === 7 || sumOfDice === 11) {
               setContinueState(Decider.Win);
               setMarker(-1);
+              changeFunds({fundDelta: wagerVal*2});
             } else if (sumOfDice === 2 || sumOfDice === 3 || sumOfDice === 12) {
                 setContinueState(Decider.Lose);
                 setMarker(-1);
+                changeFunds({fundDelta: 0});
             } else {
                 setContinueState(Decider.Nothing);
                 setMarker(sumOfDice);
@@ -180,9 +190,11 @@ const Board: React.FC<{}> = ({}) => {
             if (sumOfDice === marker) {
               setContinueState(Decider.Win);
               setMarker(-1);
+              changeFunds({fundDelta: wagerVal*2});
             } else if (sumOfDice === 7) {
                 setContinueState(Decider.Lose);
                 setMarker(-1);
+                changeFunds({fundDelta: 0});
             } else {
                 setContinueState(Decider.Nothing);
             }
@@ -204,21 +216,42 @@ const Board: React.FC<{}> = ({}) => {
     </SimpleGrid>
     </Box>
     <Center marginTop={"40px"}>
-    <Button colorScheme="red" onClick={rollDice}>
+    <Button colorScheme="red" isDisabled={!betted} onClick={rollDice}>
         Roll Dice
     </Button>
     </Center>
     <Center marginTop={"40px"}>
-    <FormControl id="placeBet" width={"25%"}>
-        <Select placeholder="Wager" color="red">
-            <option>$25</option>
-            <option>$50</option>
-            <option>$75</option>
-            <option>$100</option>
-            <option>$125</option>
-            <option>$150</option>
+    <FormControl id="placeBet" width={"20%"}>
+        <Select placeholder="Wager ($)" color="red">
+            <option>25</option>
+            <option>50</option>
+            <option>75</option>
+            <option>100</option>
+            <option>125</option>
+            <option>150</option>
         </Select>
     </FormControl>
+    <Button
+        colorScheme="red"
+        key="Bet"
+              onClick={() => {
+                let wager = document.getElementById("placeBet");
+                const wagerVal = wager.value;
+                changeFunds({
+                    fundDelta: -wagerVal,
+                });
+                createBet({
+                    input: {
+                      game: "Craps",
+                      wager: wagerVal,
+                      payout: wagerVal * 2,
+                    },
+                });
+                setBetted(true);
+              }}
+    >
+    Place Bet
+    </Button>
     </Center>
     <EndGame decider={continueState} />
     <Text marginTop={"150px"} fontSize="lg">Rules: Place your wager and roll the dice. If your first roll is a 7 or 11, you win. 
