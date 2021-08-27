@@ -174,13 +174,12 @@ const Board: React.FC<BoardProps> = ({ symbols }) => {
                   for (let i = 0; i < 15; i++) {
                     newSquares[i] = symbols[getRandomInt(0, symbols.length)];
                   }
-                  console.log(data!.me!.money);
                   values = calculateWinner(newSquares, bet!);
                   setWinnings(() => {
                     return values.winnings;
                   });
                   let newColors = values.colors;
-                  if (data!.me!.money < bet! || bet! <= 0) {
+                  if ((data?.me?.money && data.me.money < bet!) || bet! <= 0) {
                     alert("Invalid bet amount, please try again.");
                     setSlots(() => {
                       return {

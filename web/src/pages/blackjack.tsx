@@ -330,7 +330,8 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
                 if (
                   !betted &&
                   status.bet > 0 &&
-                  data!.me!.money >= status.bet!
+                  data?.me?.money &&
+                  data.me.money >= status.bet!
                 ) {
                   setDealerHand(() => {
                     const newDealerHand: Card[] = [drawCard()];
