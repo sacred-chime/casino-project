@@ -177,10 +177,12 @@ const Board: React.FC<{}> = ({}) => {
               setContinueState(Decider.Win);
               setMarker(-1);
               changeFunds({fundDelta: wagerVal*2});
+              setBetted(false);
             } else if (sumOfDice === 2 || sumOfDice === 3 || sumOfDice === 12) {
                 setContinueState(Decider.Lose);
                 setMarker(-1);
                 changeFunds({fundDelta: 0});
+                setBetted(false);
             } else {
                 setContinueState(Decider.Nothing);
                 setMarker(sumOfDice);
@@ -191,10 +193,12 @@ const Board: React.FC<{}> = ({}) => {
               setContinueState(Decider.Win);
               setMarker(-1);
               changeFunds({fundDelta: wagerVal*2});
+              setBetted(false);
             } else if (sumOfDice === 7) {
                 setContinueState(Decider.Lose);
                 setMarker(-1);
                 changeFunds({fundDelta: 0});
+                setBetted(false);
             } else {
                 setContinueState(Decider.Nothing);
             }
