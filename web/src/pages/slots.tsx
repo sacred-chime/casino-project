@@ -16,6 +16,9 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
+import { withUrqlClient } from "next-urql";
+import { useState } from "react";
+import { InterfaceUI } from "../components/InterfaceUI";
 import {
   useChangeFundsMutation,
   useCreateBetMutation,
@@ -231,7 +234,7 @@ const Board: React.FC<BoardProps> = ({ symbols }) => {
               values = calculateWinner(newSquares, bet!);
               setWinnings(values.winnings);
               let newColors = values.colors;
-              if (data!.me!.money < bet! || bet! <= 0) {
+              if (data!.me!.money! < bet! || bet! <= 0) {
                 alert("Invalid bet amount, please try again.");
                 setSlots({
                   squares: Array(15).fill(newSquares),
