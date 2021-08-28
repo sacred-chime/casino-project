@@ -88,6 +88,10 @@ const Minesweeper: React.FC<{}> = ({}) => {
 
   // MINESWEEPER TILE onClick
   const updateTile = (row: number, column: number) => {
+    if (matrix[row][column].hasBomb) {
+      setIsGameStarted(false);
+    }
+
     let copy = createUpdateTileMatrix([...matrix], row, column);
     console.log(copy);
     if (checkForEndGame(copy)) {
@@ -174,7 +178,9 @@ const MinesweeperTiles: React.FC<MinesweeperTilesProps> = ({
               <Button
                 bgColor={
                   matrix[rowIndex][columnIndex].isVisible
-                    ? "red.400"
+                    ? matrix[rowIndex][columnIndex].adjacentCount === 0
+                      ? "red.300"
+                      : "orange.300"
                     : "gray.500"
                 }
                 color={
