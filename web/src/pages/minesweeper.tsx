@@ -270,6 +270,7 @@ const createUpdateTileMatrix = (
     };
   }
 
+  // DEPTH FIRST SEARCH
   if (
     matrix[row][column].adjacentCount === 0 &&
     matrix[row][column].hasBomb === false
@@ -312,5 +313,6 @@ const createUpdateTileMatrix = (
       }
     }
   }
+
   return matrix;
 };
