@@ -178,7 +178,9 @@ const MinesweeperTiles: React.FC<MinesweeperTilesProps> = ({
               <Button
                 bgColor={
                   matrix[rowIndex][columnIndex].isVisible
-                    ? matrix[rowIndex][columnIndex].adjacentCount === 0
+                    ? matrix[rowIndex][columnIndex].hasBomb
+                      ? "gray.500"
+                      : matrix[rowIndex][columnIndex].adjacentCount === 0
                       ? "red.300"
                       : "orange.300"
                     : "gray.500"
