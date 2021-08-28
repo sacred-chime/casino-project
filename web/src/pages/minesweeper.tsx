@@ -1,169 +1,316 @@
-import { Box, Button, Flex, Grid } from "@chakra-ui/react";
+import { Box, Button, Center, SimpleGrid } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { InterfaceUI } from "../components/InterfaceUI";
-import {
-  Cell,
-  CellState,
-  CellValue,
-} from "../components/minesweeper/types/index";
 import { createUrqlClient } from "../utils/createUrqlClient";
+import { getRandomInt } from "../utils/getRandomInt";
 import { useIsAuth } from "../utils/useIsAuth";
+import { sumAdjacents } from "../utils/minesweeper/sumAdjacents";
+
+// CONSTANTS
+const n = 7; // size of (n x n) matrix
+
+// TYPESCRIPT DEFINITIONS
+interface MinesweeperTilesProps {
+    matrix: Tile[][];
+    updateTile: (row: number, column: number) => void;
+    endGameState: () => void;
+    //updateGameState: () => void;
+    //isGameStarted?: boolean;
+    //setIsGameStarted?: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+interface Tile {
+    hasBomb: boolean;
+    adjacentCount: number;
+    isVisible: boolean;
+}
+
+interface MinesweeperUIProps {
+    updateGameState: () => void;
+    // setSeconds: function useEffect(effect: React.EffectCallback, deps?: React.DependencyList | undefined): void
+    startTimer: () => void;
+    matrix: Tile[][];
+    seconds: number;
+    setSeconds: React.Dispatch<React.SetStateAction<number>>;
+    isGameStarted: boolean;
+    setIsGameStarted: React.Dispatch<React.SetStateAction<boolean>>;
+    //decrementTest: () => void;
+    endGameState: () => void;
+}
 
 // MAIN COMPONENT
 const Minesweeper: React.FC<{}> = ({}) => {
-  useIsAuth();
-  // state
-  const [cells, setcells] = useState(generateCells());
+    useIsAuth();
+    const hold: Tile = { hasBomb: false, adjacentCount: 0, isVisible: true };
 
-  //console.log(cells);
-  return (
-    <>
-      <InterfaceUI>
-        <Box
-          id="main-box"
-          bg="gray.400"
-          padding="12px"
-          borderWidth="4px"
-          borderStyle="solid"
-          borderRightColor="gray.400"
-          borderBottomColor="gray.400"
-          borderLeftColor="white"
-          borderTopColor="white"
-          w="520px"
-          h="600px"
-        >
-          <Flex
-            id="header"
-            bg="gray.400"
-            padding="10px"
-            borderWidth="4px"
-            borderStyle="solid"
-            borderRightColor="white"
-            borderBottomColor="white"
-            borderLeftColor="gray.100"
-            borderTopColor="gray.100"
-            w="96%"
-            h="20%"
-            justifyContent="space-between"
-          >
-            <Box id="flag-count" w="80px" h="48px" color="red.300" bg="black">
-              000
-            </Box>
-            <Button
-              id="reset"
-              bg="gray.300"
-              h="40px"
-              w="60px"
-              borderStyle="solid"
-              borderWidth="2px"
-              padding="3px"
-              _active={{ bg: "gray.200" }}
-            >
-              Reset
-            </Button>
-            <Box id="timer" w="80px" h="48px" color="red.300" bg="black">
-              100
-            </Box>
-          </Flex>
+    const [matrix, setMatrix] = useState<Tile[][]>(
+        //tilePlacement()
+        // initial numbers filled here
+        // first array for number of rows
+        Array.from({ length: n }, () => Array.from({ length: n }, () => hold))
+    ); // use string blanks for starting off
+    const [isGameStarted, setIsGameStarted] = useState(false);
 
-          <Box
-            id="body"
-            bg="gray.400"
-            padding="14px"
-            borderWidth="4px"
-            borderStyle="solid"
-            borderRightColor="white"
-            borderBottomColor="white"
-            borderLeftColor="gray.100"
-            borderTopColor="gray.100"
-            w="96%"
-            h="460px"
-          >
-            <RenderCells cells={cells} />
-            <Grid
-              gridTemplateColumns="repeat(9, 1fr)"
-              gridTemplateRows="repeat(9, 1f)"
-            ></Grid>
-          </Box>
-        </Box>
-      </InterfaceUI>
-    </>
-  ); // consider using Box as='button' to call a function at each square
-};
+    const [seconds, setSeconds] = useState(90);
 
-// <Board rowNum={3} colNum={5} />
-/*
-interface BoardProps {rowNum: number, colNum: number , randomVar?: number}
+    /*
+    const decrementTest = () => {
+        setSeconds(seconds - 1);
+    };
+    */
 
-const Board: React.FC<BoardProps> = ({rowNum, colNum}) => {
-    let boardSquaresRows: number[][] = [];
-    for (let row = 0; row < rowNum; row++) {
-        let boardSquaresCols: JSX.Element[] = [];
-        
-        for (let col = 0; col < colNum; col++) {
-            boardSquaresCols.push(<Box>{col}</Box>);
-            let mappedBoard: JSX.Element[] = boardSquaresCols.map((element, index) => {element })
+    const startTimer = () => {
+        console.log("function is called");
+        //if (isGameStarted === true) {
+        console.log("Game started, no countdown tho");
+        useEffect(() => {
+            if (seconds > 0) {
+                setTimeout(() => setSeconds(seconds - 1), 1000);
+                console.log("countdown works");
+            } else {
+                console.log("end of countdown");
+                setSeconds(0);
+            }
+        });
+        //}
+    };
+    // game does not reset board - adds more bombs instead
+    const updateGameState = () => {
+        if (isGameStarted === false) {
+            setIsGameStarted(true);
+            let newMatrix = bombSet(matrix);
+            newMatrix = bombCount(newMatrix);
+            for (let i = 0; i < newMatrix.length; i++) {
+                for (let j = 0; j < newMatrix[i].length; j++) {
+                    newMatrix[i][j] = {
+                        hasBomb: newMatrix[i][j].hasBomb,
+                        adjacentCount: newMatrix[i][j].adjacentCount,
+                        isVisible: false,
+                    };
+                }
+            }
+            setMatrix(newMatrix);
+        } else {
+            setIsGameStarted(false);
         }
-         
-        boardSquaresRows.push(<Box>{boardSquaresCols}</Box>);
+        // console.log("GAME START");
+    };
 
-    }
-    return 
+    // explicit game reset - yet to try/test
+    const resetGameBoard = () => {
+        if (isGameStarted === false) {
+            setMatrix(
+                Array.from({ length: n }, () =>
+                    Array.from({ length: n }, () => hold)
+                )
+            );
+        }
+    };
+
+    const endGameState = () => {
+        if (isGameStarted === true) {
+            for (let i = 0; i < matrix.length; i++) {
+                for (let j = 0; j < matrix[i].length; j++) {
+                    matrix[i][j] = {
+                        hasBomb: matrix[i][j].hasBomb,
+                        adjacentCount: matrix[i][j].adjacentCount,
+                        isVisible: true,
+                    };
+                }
+            }
+            setIsGameStarted(false);
+            //alert("GAME OVER");
+        }
+    };
+
+    const updateTile = (row: number, column: number) => {
+        let copy = [...matrix];
+
+        // try to implement properties for matrix tiles
+        if (copy[row][column].isVisible === false) {
+            copy[row][column] = {
+                hasBomb: copy[row][column].hasBomb,
+                adjacentCount: copy[row][column].adjacentCount,
+                isVisible: true,
+            };
+        }
+
+        setMatrix(copy);
+
+        console.log(copy);
+    };
+
+    const checkEndGame = (matrix: Tile[][]) => {
+        console.log("checkEndGame is called");
+        for (let i = 0; i < matrix.length; i++) {
+            for (let j = 0; j < matrix[i].length; j++) {
+                if (
+                    matrix[i][j].hasBomb === false &&
+                    matrix[i][j].isVisible === false
+                ) {
+                    break;
+                }
+            }
+        }
+        endGameState();
+    };
+
+    return (
+        <>
+            <InterfaceUI>
+                <Box>
+                    <MinesweeperUI
+                        //decrementTest={decrementTest}
+                        updateGameState={updateGameState}
+                        startTimer={startTimer}
+                        seconds={seconds}
+                        isGameStarted={isGameStarted}
+                        setSeconds={setSeconds}
+                        endGameState={endGameState}
+                        setIsGameStarted={setIsGameStarted}
+                        matrix={matrix}
+                    />
+                    <MinesweeperTiles
+                        matrix={matrix}
+                        updateTile={updateTile}
+                        endGameState={endGameState}
+                    />
+                </Box>
+            </InterfaceUI>
+        </>
+    );
 };
-*/
+
 export default withUrqlClient(createUrqlClient)(Minesweeper);
 
-interface RenderCellsProps {
-  cells: Cell[][];
-}
+// MINESWEEPER UI
 
-// grid of cells made here
-// React.ReactNode to ensure output is JSX element
-const RenderCells: React.FC<RenderCellsProps> = ({ cells }) => {
-  // row is an array, rowIndex - element, index in map
-  const cellMap = cells.map((row, rowIndex) =>
-    // map again, similar to 2darray - element(cell), index
-    // returns each Box - each Box has unique key, hence where Row and Col Index come in
-    row.map((cell, columnIndex) => (
-      <Box
-        as="button"
-        bg="tomato"
-        borderWidth="1px"
-        borderColor="black"
-        height="45px"
-        w="45px"
-        id={`${rowIndex}-${columnIndex}`}
-        key={`${rowIndex}-${columnIndex}`}
-        _hover={{ bg: "red" }} // hover before active to make activation visible
-        _active={{
-          bg: "white",
-        }}
-      />
-    ))
-  );
-  return cellMap;
+const MinesweeperUI: React.FC<MinesweeperUIProps> = ({
+    updateGameState,
+    endGameState,
+    setSeconds,
+    isGameStarted,
+    seconds,
+    startTimer,
+    //decrementTest,
+    setIsGameStarted,
+    matrix,
+}) => {
+    return (
+        <Box>
+            <Button
+                onClick={() => {
+                    updateGameState();
+                }}
+            >
+                Start
+            </Button>
+            <Box>{seconds}</Box>
+        </Box>
+    );
 };
 
-// HELPER FUNCTIONS
-const generateCells = () => {
-  const cells: Cell[][] = []; // arrays
+// MINESWEEPER TILE GRID
+const MinesweeperTiles: React.FC<MinesweeperTilesProps> = ({
+    matrix,
+    updateTile,
+    endGameState,
+    //updateGameState,
+    //isGameStarted,
+    //setIsGameStarted,
+}) => {
+    return (
+        <Box bgColor={"blue.700"}>
+            {matrix.map((row, rowIndex) => (
+                <SimpleGrid key={rowIndex} columns={n}>
+                    {row.map((column, columnIndex) => (
+                        <Center py={2} key={columnIndex}>
+                            <Button
+                                bgColor={"orange.200"}
+                                width={"60%"}
+                                isDisabled={
+                                    matrix[rowIndex][columnIndex].isVisible
+                                }
+                                onClick={() => {
+                                    updateTile(rowIndex, columnIndex);
+                                    if (matrix[rowIndex][columnIndex].hasBomb) {
+                                        endGameState();
+                                    }
+                                }}
+                            >
+                                {matrix[rowIndex][columnIndex].isVisible
+                                    ? matrix[rowIndex][columnIndex].hasBomb
+                                        ? "💣"
+                                        : "" +
+                                          matrix[rowIndex][columnIndex]
+                                              .adjacentCount
+                                    : " "}
+                            </Button>
+                        </Center>
+                    ))}
+                </SimpleGrid>
+            ))}
+        </Box>
+    );
+};
 
-  for (let row = 0; row < 9; row++) {
-    cells.push([]);
-    for (let col = 0; col < 9; col++) {
-      cells[row].push({
-        value: CellValue.none, // imported from types in components
-        state: CellState.open,
-      });
+// HELPER / PLACEHOLDER FUNCTIONS
+
+// Add properties to tiles
+const tilePlacement = () => {
+    let tiles: Tile[][] = [];
+
+    for (let i = 0; i < n; i++) {
+        tiles.push([]);
+        for (let j = 0; j < n; j++) {
+            tiles[i].push({
+                hasBomb: false,
+                adjacentCount: 0,
+                isVisible: false,
+            });
+        }
     }
-  }
 
-  // randomize bomb locations func - 10 as default
-  let bombsPlaced = 0;
-  //    while (bombsPlaced < 10) {
-  //
-  //    }
+    bombSet(tiles);
+    bombCount(tiles);
+    console.log("testing the things:");
+    console.log(tiles);
+    return tiles;
+};
 
-  return cells;
+// Bomb Placement
+const bombSet = (tiles: Tile[][]) => {
+    let bombsPlaced = 0;
+
+    while (bombsPlaced < 7) {
+        const rowRandom = Math.floor(getRandomInt(0, tiles.length));
+        const colRandom = Math.floor(getRandomInt(0, tiles[0].length));
+
+        tiles[rowRandom][colRandom] = {
+            hasBomb: true,
+            adjacentCount: tiles[rowRandom][colRandom].adjacentCount,
+            isVisible: tiles[rowRandom][colRandom].isVisible,
+        };
+
+        // cells[rowRandom][colRandom].textContent = 'H'
+        bombsPlaced++;
+    }
+    return tiles;
+};
+
+// Sum Adjacent
+const bombCount = (tiles: Tile[][]) => {
+    for (let i = 0; i < tiles.length; i++) {
+        for (let j = 0; j < tiles[0].length; j++) {
+            const newAdjacent = sumAdjacents(tiles, i, j);
+            tiles[i][j] = {
+                hasBomb: tiles[i][j].hasBomb,
+                adjacentCount: newAdjacent,
+                isVisible: tiles[i][j].isVisible,
+            };
+        }
+    }
+
+    return tiles;
 };
