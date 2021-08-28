@@ -172,7 +172,16 @@ const MinesweeperTiles: React.FC<MinesweeperTilesProps> = ({
           {row.map((column, columnIndex) => (
             <Center py={2} key={columnIndex}>
               <Button
-                bgColor={"orange.200"}
+                bgColor={
+                  matrix[rowIndex][columnIndex].isVisible
+                    ? "red.400"
+                    : "gray.500"
+                }
+                color={
+                  matrix[rowIndex][columnIndex].adjacentCount !== 0
+                    ? "blue.700"
+                    : "white"
+                }
                 width={"60%"}
                 isDisabled={matrix[rowIndex][columnIndex].isVisible}
                 onClick={() => {
