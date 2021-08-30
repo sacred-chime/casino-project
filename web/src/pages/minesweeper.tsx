@@ -123,8 +123,8 @@ const Minesweeper: React.FC<{}> = ({}) => {
   const updateTile = (row: number, column: number) => {
     if (matrix[row][column].hasBomb) {
       setIsGameStarted(false);
-      console.log("Bomb was clicked");
-      checkForEndGame(matrix);
+      // console.log("Bomb was clicked");
+      setAllTilesNotFlagged();
       createBet({
         input: {
           game: "Minesweeper",
@@ -136,11 +136,11 @@ const Minesweeper: React.FC<{}> = ({}) => {
     }
 
     let copy = createUpdateTileMatrix([...matrix], row, column);
-    console.log(copy);
+    // console.log(copy);
     if (checkForEndGame(copy)) {
       // IF GAME IS WON
       alert("YOU WON!");
-      //console.log("YOU WON!");
+      // console.log("YOU WON!");
       setIsGameStarted(false);
       setAllTilesVisibility(true);
       createBet({
@@ -212,7 +212,7 @@ const Minesweeper: React.FC<{}> = ({}) => {
   useEffect(() => {
     const newSeconds = seconds - 1;
     if (isGameStarted) {
-      console.log("use effect ran works");
+      //   console.log("use effect ran works");
       setTimeout(() => setSeconds(newSeconds), 1000);
       if (newSeconds === 0) {
         setIsGameStarted(false);
@@ -358,7 +358,7 @@ const MinesweeperTiles: React.FC<MinesweeperTilesProps> = ({
                 }}
                 onContextMenu={() => {
                   addFlag(rowIndex, columnIndex);
-                  console.log("right click heard");
+                  //   console.log("right click heard");
                 }}
               >
                 {matrix[rowIndex][columnIndex].isVisible
@@ -422,13 +422,13 @@ const checkForEndGame = (matrix: MinesweeperTile[][]) => {
   for (let i = 0; i < matrix.length; i++) {
     for (let j = 0; j < matrix[i].length; j++) {
       if (matrix[i][j].hasBomb === false && matrix[i][j].isVisible === false) {
-        console.log(`Win Result: ${gameWon}`);
+        // console.log(`Win Result: ${gameWon}`);
         return gameWon;
       }
     }
   }
   gameWon = true;
-  console.log(`Win Result: ${gameWon}`);
+  //   console.log(`Win Result: ${gameWon}`);
   return gameWon;
 };
 
@@ -492,9 +492,4 @@ const createUpdateTileMatrix = (
   }
 
   return matrix;
-};
-
-// call Flag test
-const rightClickTest = () => {
-  console.log("Right Click heard");
 };
