@@ -267,6 +267,7 @@ const MinesweeperUI: React.FC<MinesweeperUIProps> = ({
         flexDir={"column"}
         width={"40vw"}
         borderTopRadius={10}
+        mt={10}
       >
         <Center my={2}>
           <Flex width={"500px"} bgColor={"gray.800"} borderRadius={4} p={2}>
