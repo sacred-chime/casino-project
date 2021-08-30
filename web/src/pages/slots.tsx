@@ -180,7 +180,10 @@ const Board: React.FC<BoardProps> = ({ symbols }) => {
                     return values.winnings;
                   });
                   let newColors = values.colors;
-                  if (data!.me!.money < bet! || bet! <= 0) {
+                  if (
+                    (data?.me?.money && data!.me!.money < bet!) ||
+                    bet! <= 0
+                  ) {
                     alert("Invalid bet amount, please try again.");
                     setSlots(() => {
                       return {
