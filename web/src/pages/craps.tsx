@@ -16,36 +16,17 @@ import {
 import { withUrqlClient } from "next-urql";
 import React, { useState } from "react";
 import { InterfaceUI } from "../components/InterfaceUI";
+import {
+  useChangeFundsMutation,
+  useCreateBetMutation,
+  useMeQuery,
+} from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { getRandomInt } from "../utils/getRandomInt";
 import { useIsAuth } from "../utils/useIsAuth";
 
-// Typescript Definitions
-enum Decider {
-  Win = "WIN",
-  Lose = "LOSE",
-  Nothing = "",
-}
-
-enum DiceUnicode {
-  One = "⚀",
-  Two = "⚁",
-  Three = "⚂",
-  Four = "⚃",
-  Five = "⚄",
-  Six = "⚅",
-}
-
-interface EndGameProps {
-  decider: Decider;
-}
-
-interface TileProps {
-  diceValue: DiceUnicode;
-}
-
 // Pairs the unicode dice side to its respective image
-const DICE_FACE = {
+const DICE_FACE: any = {
   "⚀": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Alea_1.png",
   "⚁": "https://upload.wikimedia.org/wikipedia/commons/b/b8/Alea_2.png",
   "⚂": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Alea_3.png",
@@ -55,31 +36,24 @@ const DICE_FACE = {
 };
 
 // This function returns a random die
-const getRandomDie = () => {
-  const diceSides = [
-    DiceUnicode.One,
-    DiceUnicode.Two,
-    DiceUnicode.Three,
-    DiceUnicode.Four,
-    DiceUnicode.Five,
-    DiceUnicode.Six,
-  ];
+const getRandomDie = (): string => {
+  const diceSides = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 
   return diceSides[getRandomInt(0, diceSides.length)];
 };
 
 // This function converts unicode dice to its respective image
-const convertUnicode = (unicode: DiceUnicode): string => {
+const convertUnicode = (unicode: string): string => {
   return DICE_FACE[unicode];
 };
 
 // This function calculates the sum of two dice sides
-const diceSum = (dice1: number, dice2: number) => {
+const diceSum = (dice1: number, dice2: number): number => {
   return dice1 + dice2;
 };
 
 // This function converts unicode to its integer
-const getDiceInt = (diceUni: string) => {
+const getDiceInt = (diceUni: string): number => {
   let diceInt = 0;
 
   if (diceUni === "⚀") {
@@ -101,6 +75,16 @@ const getDiceInt = (diceUni: string) => {
   return diceInt;
 };
 
+enum Decider {
+  Win = "WIN",
+  Lose = "LOSE",
+  Nothing = "",
+}
+
+interface EndGameProps {
+  decider: Decider;
+}
+
 // This function determines if a winning alert, losing alert, or nothing should be displayed
 const EndGame: React.FC<EndGameProps> = ({ decider }) => {
   const endGameFn = () => {
@@ -116,15 +100,15 @@ const EndGame: React.FC<EndGameProps> = ({ decider }) => {
   return endGameFn();
 };
 
-const Tile: React.FC<TileProps> = ({ diceValue }) => {
+const Tile: React.FC<any> = (props: any) => {
   return (
     <Box bg="rgb(26,32,44)" textAlign="center">
-      <Image src={convertUnicode(diceValue)} />
+      <Image src={convertUnicode(props.value)} />
     </Box>
   );
 };
 
-const Win: React.FC<{}> = () => {
+const Win: React.FC<any> = () => {
   return (
     <Alert
       status="success"
@@ -148,7 +132,7 @@ const Win: React.FC<{}> = () => {
   );
 };
 
-const Lose: React.FC<{}> = () => {
+const Lose: React.FC<any> = () => {
   return (
     <Alert
       status="error"
@@ -173,14 +157,20 @@ const Lose: React.FC<{}> = () => {
 };
 
 const Board: React.FC<{}> = ({}) => {
-  const [diceDisplay, setDiceDisplay] = useState<DiceUnicode[]>([]);
+  const [{ data, fetching }] = useMeQuery();
+  const [diceDisplay, setDiceDisplay] = useState<Array<string>>([]);
   const [continueState, setContinueState] = useState<Decider>(Decider.Nothing);
   const [marker, setMarker] = useState(-1);
+  const [betted, setBetted] = useState(false);
+  const [wagerVal, setWagerVal] = useState(0);
+
+  const [, changeFunds] = useChangeFundsMutation();
+  const [, createBet] = useCreateBetMutation();
 
   const rollDice = () => {
     let diceSide = [];
     for (let i = 0; i < 2; i++) {
-      const die = getRandomDie();
+      const die: string = getRandomDie();
       diceSide.push(die);
     }
     setDiceDisplay(diceSide);
@@ -192,9 +182,27 @@ const Board: React.FC<{}> = ({}) => {
       if (sumOfDice === 7 || sumOfDice === 11) {
         setContinueState(Decider.Win);
         setMarker(-1);
+        changeFunds({ fundDelta: wagerVal * 2 });
+        createBet({
+          input: {
+            game: "Craps",
+            wager: wagerVal,
+            payout: wagerVal * 2,
+          },
+        });
+        setBetted(false);
       } else if (sumOfDice === 2 || sumOfDice === 3 || sumOfDice === 12) {
         setContinueState(Decider.Lose);
         setMarker(-1);
+        changeFunds({ fundDelta: 0 });
+        createBet({
+          input: {
+            game: "Craps",
+            wager: wagerVal,
+            payout: 0,
+          },
+        });
+        setBetted(false);
       } else {
         setContinueState(Decider.Nothing);
         setMarker(sumOfDice);
@@ -203,9 +211,27 @@ const Board: React.FC<{}> = ({}) => {
       if (sumOfDice === marker) {
         setContinueState(Decider.Win);
         setMarker(-1);
+        changeFunds({ fundDelta: wagerVal * 2 });
+        createBet({
+          input: {
+            game: "Craps",
+            wager: wagerVal,
+            payout: wagerVal * 2,
+          },
+        });
+        setBetted(false);
       } else if (sumOfDice === 7) {
         setContinueState(Decider.Lose);
         setMarker(-1);
+        changeFunds({ fundDelta: 0 });
+        createBet({
+          input: {
+            game: "Craps",
+            wager: wagerVal,
+            payout: 0,
+          },
+        });
+        setBetted(false);
       } else {
         setContinueState(Decider.Nothing);
       }
@@ -227,27 +253,49 @@ const Board: React.FC<{}> = ({}) => {
         bg="rgb(26,32,44)"
       >
         <SimpleGrid columns={2} rows={1} spacing={2}>
-          {diceDisplay.map((die: DiceUnicode, i: number) => (
-            <Tile key={`[0, ${i}]`} diceValue={die} />
+          {diceDisplay.map((die: string, i: number) => (
+            <Tile key={`[0, ${i}]`} value={die} />
           ))}
         </SimpleGrid>
       </Box>
       <Center marginTop={"40px"}>
-        <Button colorScheme="red" onClick={rollDice}>
+        <Button colorScheme="red" isDisabled={!betted} onClick={rollDice}>
           Roll Dice
         </Button>
       </Center>
-      <Center marginTop={"40px"}>
-        <FormControl id="placeBet" width={"25%"}>
-          <Select placeholder="Wager" color="red">
-            <option>$25</option>
-            <option>$50</option>
-            <option>$75</option>
-            <option>$100</option>
-            <option>$125</option>
-            <option>$150</option>
+      <Center hidden={betted} marginTop={"40px"}>
+        <FormControl id="placeBet" width={"20%"}>
+          <Select placeholder="Wager ($)" color="red">
+            <option>25</option>
+            <option>50</option>
+            <option>75</option>
+            <option>100</option>
+            <option>125</option>
+            <option>150</option>
           </Select>
         </FormControl>
+        <Button
+          colorScheme="red"
+          key="Bet"
+          onClick={() => {
+            let wager = document.getElementById("placeBet");
+            if (
+              parseInt(wager!.value) >= 0 &&
+              data?.me?.money &&
+              data?.me?.money >= parseInt(wager!.value)
+            ) {
+              setWagerVal(parseInt(wager!.value));
+              changeFunds({
+                fundDelta: -wagerVal,
+              });
+              setBetted(true);
+            } else {
+              alert("Invalid bet amount, please try again.");
+            }
+          }}
+        >
+          Place Bet
+        </Button>
       </Center>
       <EndGame decider={continueState} />
       <Text marginTop={"150px"} fontSize="lg">

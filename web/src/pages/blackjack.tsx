@@ -18,6 +18,7 @@ import { InterfaceUI } from "../components/InterfaceUI";
 import {
   useChangeFundsMutation,
   useCreateBetMutation,
+  useMeQuery,
 } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { getRandomInt } from "../utils/getRandomInt";
@@ -126,6 +127,7 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
     <BlackjackTile key={13} value={`Total: ${playerHand.total}`} />
   );
 
+  const [{ data, fetching }] = useMeQuery();
   const [, changeFunds] = useChangeFundsMutation();
   const [, createBet] = useCreateBetMutation();
   const [betted, setBetted] = useState(() => false);
@@ -326,7 +328,12 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
               key="Bet"
               hidden={betted}
               onClick={() => {
-                if (!betted && status.bet > 0) {
+                if (
+                  !betted &&
+                  status.bet > 0 &&
+                  data?.me?.money &&
+                  data.me.money >= status.bet
+                ) {
                   setDealerHand(() => {
                     const newDealerHand: Card[] = [drawCard()];
                     const newDealerTotal = calculateHand(newDealerHand);
@@ -355,6 +362,16 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
                     };
                   });
                   setBetted(() => true);
+                } else {
+                  // IF NOT ENOUGH MONEY OR NO BET
+                  if (data?.me?.money && data?.me?.money < status.bet) {
+                    alert("PLEASE ADD FUNDS.");
+                    return;
+                  }
+                  if (status.bet <= 0) {
+                    alert("PLEASE PLACE BET.");
+                    return;
+                  }
                 }
               }}
             >
@@ -403,7 +420,14 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
 // TILE COMPONENT
 const BlackjackTile: React.FC<BlackjackTileProps> = ({ value }) => {
   return (
-    <Box bg="gray.800" height="100px" lineHeight="100px" textAlign="center">
+    <Box
+      bg="gray.800"
+      fontWeight={value.includes("A of") ? "bold" : "normal"}
+      color={value.includes("A of") ? "mediumseagreen" : "white"}
+      height="100px"
+      lineHeight="100px"
+      textAlign="center"
+    >
       {value}
     </Box>
   );
