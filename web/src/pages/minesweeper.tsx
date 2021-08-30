@@ -3,6 +3,7 @@ import {
   Button,
   Center,
   Flex,
+  Heading,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
@@ -270,7 +271,7 @@ const MinesweeperUI: React.FC<MinesweeperUIProps> = ({
         mt={10}
       >
         <Center my={2}>
-          <Flex width={"500px"} bgColor={"gray.800"} borderRadius={4} p={2}>
+          <Flex width={"98%"} bgColor={"gray.800"} borderRadius={4} p={2}>
             <Button
               ml={"auto"}
               bgColor="green.700"
@@ -281,7 +282,7 @@ const MinesweeperUI: React.FC<MinesweeperUIProps> = ({
               {isGameStarted ? "RESET" : "START"}
             </Button>
             <Center
-              ml={5}
+              ml={"24"}
               mr={"auto"}
               border={"gray.800"}
               bgColor={"gray.700"}
@@ -289,16 +290,20 @@ const MinesweeperUI: React.FC<MinesweeperUIProps> = ({
               borderRadius={4}
               p={1}
             >
-              {seconds} seconds left{".".repeat((seconds % 3) + 1)}
+              <Text fontFamily={"heading"} px={2}>
+                {seconds} seconds left{".".repeat((seconds % 3) + 1)}
+              </Text>
             </Center>
           </Flex>
         </Center>
-        <Center>Right Click on the Mouse will add a Flag to the tile</Center>
+        <Center>
+          <Text fontFamily={"heading"}>Right Click to Flag a Tile.</Text>
+        </Center>
 
         <Center my={2}>
           <Flex height={"40px"}>
             <Center>
-              <Text hidden={isGameStarted} mr={5}>
+              <Text hidden={isGameStarted} fontFamily={"heading"} mr={5}>
                 How much would you like to bet?
               </Text>
             </Center>
