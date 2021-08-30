@@ -3,6 +3,7 @@ import {
   Button,
   Center,
   Flex,
+  Heading,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
@@ -33,12 +34,14 @@ interface MinesweeperTilesProps {
   matrix: MinesweeperTile[][];
   updateTile: (row: number, column: number) => void;
   setAllTilesVisibility: (visible: boolean) => void;
+  addFlag: (row: number, column: number) => void;
 }
 
 export interface MinesweeperTile {
   hasBomb: boolean;
   adjacentCount: number;
   isVisible: boolean;
+  isFlagged: boolean;
 }
 
 interface MinesweeperUIProps {
@@ -51,7 +54,7 @@ interface MinesweeperUIProps {
 // MAIN COMPONENT
 const Minesweeper: React.FC<{}> = ({}) => {
   useIsAuth();
-  const defaultSeconds = 500;
+  const defaultSeconds = 180;
 
   const [{ data, fetching }] = useMeQuery();
   const [, changeFunds] = useChangeFundsMutation();
@@ -65,6 +68,7 @@ const Minesweeper: React.FC<{}> = ({}) => {
     hasBomb: false,
     adjacentCount: 0,
     isVisible: true,
+    isFlagged: false,
   };
   const defaultTileMatrix = Array.from({ length: n }, () =>
     Array.from({ length: n }, () => defaultTileState)
@@ -102,6 +106,7 @@ const Minesweeper: React.FC<{}> = ({}) => {
             hasBomb: newMatrix[i][j].hasBomb,
             adjacentCount: newMatrix[i][j].adjacentCount,
             isVisible: false,
+            isFlagged: matrix[i][j].isFlagged,
           };
         }
       }
@@ -111,6 +116,7 @@ const Minesweeper: React.FC<{}> = ({}) => {
       setIsGameStarted(false);
       setMatrix(defaultTileMatrix);
       setAllTilesVisibility(false);
+      setAllTilesNotFlagged();
     }
   };
 
@@ -118,8 +124,8 @@ const Minesweeper: React.FC<{}> = ({}) => {
   const updateTile = (row: number, column: number) => {
     if (matrix[row][column].hasBomb) {
       setIsGameStarted(false);
-      console.log("Bomb was clicked");
-      checkForEndGame(matrix);
+      // console.log("Bomb was clicked");
+      setAllTilesNotFlagged();
       createBet({
         input: {
           game: "Minesweeper",
@@ -131,11 +137,12 @@ const Minesweeper: React.FC<{}> = ({}) => {
     }
 
     let copy = createUpdateTileMatrix([...matrix], row, column);
-    //console.log(copy);
+    // console.log(copy);
     if (checkForEndGame(copy)) {
       // IF GAME IS WON
       alert("YOU WON!");
-      //console.log("YOU WON!");
+      // console.log("YOU WON!");
+      setIsGameStarted(false);
       setAllTilesVisibility(true);
       createBet({
         input: {
@@ -161,6 +168,41 @@ const Minesweeper: React.FC<{}> = ({}) => {
           hasBomb: matrix[i][j].hasBomb,
           adjacentCount: matrix[i][j].adjacentCount,
           isVisible: visible,
+          isFlagged: matrix[i][j].isFlagged,
+        };
+      }
+      setMatrix(copy);
+    }
+  };
+
+  // ADD FLAG TO TILE
+  const addFlag = (row: number, column: number) => {
+    let copy = [...matrix];
+    if (copy[row][column].isVisible === false) {
+      copy[row][column] = {
+        hasBomb: copy[row][column].hasBomb,
+        adjacentCount: copy[row][column].adjacentCount,
+        isVisible: copy[row][column].isVisible,
+        isFlagged: !copy[row][column].isFlagged,
+      };
+    }
+    setMatrix(copy);
+
+    window.oncontextmenu = (e) => {
+      e.preventDefault();
+    };
+  };
+
+  // SETS ALL TILES TO NOT FLAGGED
+  const setAllTilesNotFlagged = () => {
+    let copy = [...matrix];
+    for (let i = 0; i < matrix.length; i++) {
+      for (let j = 0; j < matrix[i].length; j++) {
+        copy[i][j] = {
+          hasBomb: matrix[i][j].hasBomb,
+          adjacentCount: matrix[i][j].adjacentCount,
+          isVisible: matrix[i][j].isVisible,
+          isFlagged: false,
         };
       }
       setMatrix(copy);
@@ -171,7 +213,7 @@ const Minesweeper: React.FC<{}> = ({}) => {
   useEffect(() => {
     const newSeconds = seconds - 1;
     if (isGameStarted) {
-      console.log("use effect ran works");
+      //   console.log("use effect ran works");
       setTimeout(() => setSeconds(newSeconds), 1000);
       if (newSeconds === 0) {
         setIsGameStarted(false);
@@ -202,6 +244,7 @@ const Minesweeper: React.FC<{}> = ({}) => {
             matrix={matrix}
             updateTile={updateTile}
             setAllTilesVisibility={setAllTilesVisibility}
+            addFlag={addFlag}
           />
         </Box>
       </InterfaceUI>
@@ -219,59 +262,74 @@ const MinesweeperUI: React.FC<MinesweeperUIProps> = ({
   setBet,
 }) => {
   return (
-    <Flex bgColor={"blue.700"} flexDir={"column"}>
-      <Center my={2}>
-        <Flex width={"500px"} bgColor={"gray.800"} borderRadius={4} p={2}>
-          <Button
-            ml={"auto"}
-            bgColor="green.700"
-            onClick={() => {
-              updateGameState();
-            }}
-          >
-            {isGameStarted ? "RESET" : "START"}
-          </Button>
-          <Center
-            ml={5}
-            mr={"auto"}
-            border={"gray.800"}
-            bgColor={"gray.700"}
-            borderWidth={2}
-            borderRadius={4}
-            p={1}
-          >
-            {seconds} seconds left{".".repeat((seconds % 3) + 1)}
-          </Center>
-        </Flex>
-      </Center>
-      <Center my={2}>
-        <Flex height={"40px"}>
-          <Center>
-            <Text hidden={isGameStarted} mr={5}>
-              How much would you like to bet?
-            </Text>
-          </Center>
-          <NumberInput
-            hidden={isGameStarted}
-            type="number"
-            width={"150px"}
-            bgColor={"gray.700"}
-            defaultValue={0}
-            min={1}
-            max={1000000}
-            onChange={(input) => {
-              setBet(parseInt(input));
-            }}
-          >
-            <NumberInputField />
-            <NumberInputStepper>
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
-          </NumberInput>
-        </Flex>
-      </Center>
-    </Flex>
+    <Center>
+      <Flex
+        bgColor={"blue.700"}
+        flexDir={"column"}
+        width={"40vw"}
+        borderTopRadius={10}
+        mt={10}
+      >
+        <Center my={2}>
+          <Flex width={"98%"} bgColor={"gray.800"} borderRadius={4} p={2}>
+            <Button
+              ml={"auto"}
+              bgColor="green.700"
+              onClick={() => {
+                updateGameState();
+              }}
+            >
+              {isGameStarted ? "RESET" : "START"}
+            </Button>
+            <Center
+              ml={"24"}
+              mr={"auto"}
+              border={"gray.800"}
+              bgColor={"gray.700"}
+              borderWidth={2}
+              borderRadius={4}
+              p={1}
+            >
+              <Text fontFamily={"heading"} px={2}>
+                {seconds} seconds left{".".repeat((seconds % 3) + 1)}
+              </Text>
+            </Center>
+          </Flex>
+        </Center>
+        <Center>
+          <Text fontFamily={"heading"}>Right Click to Flag a Tile.</Text>
+        </Center>
+
+        <Center my={2}>
+          <Flex height={"40px"}>
+            <Center>
+              <Text hidden={isGameStarted} fontFamily={"heading"} mr={5}>
+                How much would you like to bet?
+              </Text>
+            </Center>
+
+            <NumberInput
+              hidden={isGameStarted}
+              type="number"
+              width={"150px"}
+              bgColor={"gray.700"}
+              defaultValue={0}
+              min={1}
+              max={1000000}
+              onChange={(input) => {
+                setBet(parseInt(input));
+              }}
+            >
+              <NumberInputField />
+              <NumberInputStepper>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+              </NumberInputStepper>
+            </NumberInput>
+          </Flex>
+        </Center>
+      </Flex>
+    </Center>
   );
 };
 
@@ -280,48 +338,64 @@ const MinesweeperTiles: React.FC<MinesweeperTilesProps> = ({
   matrix,
   updateTile,
   setAllTilesVisibility,
+  addFlag,
 }) => {
   return (
-    <Box bgColor={"blue.700"}>
-      {matrix.map((row, rowIndex) => (
-        <SimpleGrid key={rowIndex} columns={n}>
-          {row.map((column, columnIndex) => (
-            <Center py={2} key={columnIndex}>
-              <Button
-                bgColor={
-                  matrix[rowIndex][columnIndex].isVisible
-                    ? matrix[rowIndex][columnIndex].hasBomb
-                      ? "gray.500"
-                      : matrix[rowIndex][columnIndex].adjacentCount === 0
-                      ? "red.300"
-                      : "orange.300"
-                    : "gray.500"
-                }
-                color={
-                  matrix[rowIndex][columnIndex].adjacentCount !== 0
-                    ? "blue.700"
-                    : "white"
-                }
-                width={"60%"}
-                isDisabled={matrix[rowIndex][columnIndex].isVisible}
-                onClick={() => {
-                  updateTile(rowIndex, columnIndex);
-                  if (matrix[rowIndex][columnIndex].hasBomb) {
-                    setAllTilesVisibility(true);
-                  }
-                }}
-              >
-                {matrix[rowIndex][columnIndex].isVisible
-                  ? matrix[rowIndex][columnIndex].hasBomb
-                    ? "💣"
-                    : "" + matrix[rowIndex][columnIndex].adjacentCount
-                  : " "}
-              </Button>
-            </Center>
+    <Center>
+      <Center
+        bgColor={"blue.700"}
+        width={"40vw"}
+        borderBottomRadius={10}
+        pb={5}
+      >
+        <Box>
+          {matrix.map((row, rowIndex) => (
+            <Flex key={rowIndex} columns={n} spacing={"5px"}>
+              {row.map((column, columnIndex) => (
+                <Center py={2} key={columnIndex} height={"50px"} width={"50px"}>
+                  <Button
+                    bgColor={
+                      matrix[rowIndex][columnIndex].isVisible
+                        ? matrix[rowIndex][columnIndex].hasBomb
+                          ? "gray.500"
+                          : matrix[rowIndex][columnIndex].adjacentCount === 0
+                          ? "red.300"
+                          : "orange.300"
+                        : "gray.500"
+                    }
+                    color={
+                      matrix[rowIndex][columnIndex].adjacentCount !== 0
+                        ? "blue.700"
+                        : "white"
+                    }
+                    width={"60%"}
+                    isDisabled={matrix[rowIndex][columnIndex].isVisible}
+                    onClick={() => {
+                      updateTile(rowIndex, columnIndex);
+                      if (matrix[rowIndex][columnIndex].hasBomb) {
+                        setAllTilesVisibility(true);
+                      }
+                    }}
+                    onContextMenu={() => {
+                      addFlag(rowIndex, columnIndex);
+                      //   console.log("right click heard");
+                    }}
+                  >
+                    {matrix[rowIndex][columnIndex].isVisible
+                      ? matrix[rowIndex][columnIndex].hasBomb
+                        ? "💣"
+                        : "" + matrix[rowIndex][columnIndex].adjacentCount
+                      : matrix[rowIndex][columnIndex].isFlagged
+                      ? "🚩"
+                      : " "}
+                  </Button>
+                </Center>
+              ))}
+            </Flex>
           ))}
-        </SimpleGrid>
-      ))}
-    </Box>
+        </Box>
+      </Center>
+    </Center>
   );
 };
 
@@ -340,6 +414,7 @@ const setBombLocations = (tiles: MinesweeperTile[][]) => {
       hasBomb: true,
       adjacentCount: tiles[rowRandom][colRandom].adjacentCount,
       isVisible: tiles[rowRandom][colRandom].isVisible,
+      isFlagged: false,
     };
     bombsPlaced++;
   }
@@ -355,6 +430,7 @@ const setBombAdjacencyValues = (tiles: MinesweeperTile[][]) => {
         hasBomb: tiles[i][j].hasBomb,
         adjacentCount: newAdjacent,
         isVisible: tiles[i][j].isVisible,
+        isFlagged: tiles[i][j].isFlagged,
       };
     }
   }
@@ -368,13 +444,13 @@ const checkForEndGame = (matrix: MinesweeperTile[][]) => {
   for (let i = 0; i < matrix.length; i++) {
     for (let j = 0; j < matrix[i].length; j++) {
       if (matrix[i][j].hasBomb === false && matrix[i][j].isVisible === false) {
-        console.log(`Win Result: ${gameWon}`);
+        // console.log(`Win Result: ${gameWon}`);
         return gameWon;
       }
     }
   }
   gameWon = true;
-  console.log(`Win Result: ${gameWon}`);
+  //   console.log(`Win Result: ${gameWon}`);
   return gameWon;
 };
 
@@ -389,6 +465,7 @@ const createUpdateTileMatrix = (
       hasBomb: matrix[row][column].hasBomb,
       adjacentCount: matrix[row][column].adjacentCount,
       isVisible: true,
+      isFlagged: matrix[row][column].isFlagged,
     };
   }
 
