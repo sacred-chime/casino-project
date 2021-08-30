@@ -261,62 +261,69 @@ const MinesweeperUI: React.FC<MinesweeperUIProps> = ({
   setBet,
 }) => {
   return (
-    <Flex bgColor={"blue.700"} flexDir={"column"}>
-      <Center my={2}>
-        <Flex width={"500px"} bgColor={"gray.800"} borderRadius={4} p={2}>
-          <Button
-            ml={"auto"}
-            bgColor="green.700"
-            onClick={() => {
-              updateGameState();
-            }}
-          >
-            {isGameStarted ? "RESET" : "START"}
-          </Button>
-          <Center
-            ml={5}
-            mr={"auto"}
-            border={"gray.800"}
-            bgColor={"gray.700"}
-            borderWidth={2}
-            borderRadius={4}
-            p={1}
-          >
-            {seconds} seconds left{".".repeat((seconds % 3) + 1)}
-          </Center>
-        </Flex>
-      </Center>
-      <Center>Right Click on the Mouse will add a Flag to the tile</Center>
+    <Center>
+      <Flex
+        bgColor={"blue.700"}
+        flexDir={"column"}
+        width={"40vw"}
+        borderTopRadius={10}
+      >
+        <Center my={2}>
+          <Flex width={"500px"} bgColor={"gray.800"} borderRadius={4} p={2}>
+            <Button
+              ml={"auto"}
+              bgColor="green.700"
+              onClick={() => {
+                updateGameState();
+              }}
+            >
+              {isGameStarted ? "RESET" : "START"}
+            </Button>
+            <Center
+              ml={5}
+              mr={"auto"}
+              border={"gray.800"}
+              bgColor={"gray.700"}
+              borderWidth={2}
+              borderRadius={4}
+              p={1}
+            >
+              {seconds} seconds left{".".repeat((seconds % 3) + 1)}
+            </Center>
+          </Flex>
+        </Center>
+        <Center>Right Click on the Mouse will add a Flag to the tile</Center>
 
-      <Center my={2}>
-        <Flex height={"40px"}>
-          <Center>
-            <Text hidden={isGameStarted} mr={5}>
-              How much would you like to bet?
-            </Text>
-          </Center>
+        <Center my={2}>
+          <Flex height={"40px"}>
+            <Center>
+              <Text hidden={isGameStarted} mr={5}>
+                How much would you like to bet?
+              </Text>
+            </Center>
 
-          <NumberInput
-            hidden={isGameStarted}
-            type="number"
-            width={"150px"}
-            bgColor={"gray.700"}
-            defaultValue={0}
-            min={1}
-            max={1000000}
-            onChange={(input) => {
-              setBet(parseInt(input));
-            }}
-          >
-            <NumberInputField />
-            <NumberInputStepper>
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
-          </NumberInput>
-        </Flex>
-      </Center>
-    </Flex>
+            <NumberInput
+              hidden={isGameStarted}
+              type="number"
+              width={"150px"}
+              bgColor={"gray.700"}
+              defaultValue={0}
+              min={1}
+              max={1000000}
+              onChange={(input) => {
+                setBet(parseInt(input));
+              }}
+            >
+              <NumberInputField />
+              <NumberInputStepper>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+              </NumberInputStepper>
+            </NumberInput>
+          </Flex>
+        </Center>
+      </Flex>
+    </Center>
   );
 };
 
@@ -328,52 +335,61 @@ const MinesweeperTiles: React.FC<MinesweeperTilesProps> = ({
   addFlag,
 }) => {
   return (
-    <Box bgColor={"blue.700"}>
-      {matrix.map((row, rowIndex) => (
-        <SimpleGrid key={rowIndex} columns={n}>
-          {row.map((column, columnIndex) => (
-            <Center py={2} key={columnIndex}>
-              <Button
-                bgColor={
-                  matrix[rowIndex][columnIndex].isVisible
-                    ? matrix[rowIndex][columnIndex].hasBomb
-                      ? "gray.500"
-                      : matrix[rowIndex][columnIndex].adjacentCount === 0
-                      ? "red.300"
-                      : "orange.300"
-                    : "gray.500"
-                }
-                color={
-                  matrix[rowIndex][columnIndex].adjacentCount !== 0
-                    ? "blue.700"
-                    : "white"
-                }
-                width={"60%"}
-                isDisabled={matrix[rowIndex][columnIndex].isVisible}
-                onClick={() => {
-                  updateTile(rowIndex, columnIndex);
-                  if (matrix[rowIndex][columnIndex].hasBomb) {
-                    setAllTilesVisibility(true);
-                  }
-                }}
-                onContextMenu={() => {
-                  addFlag(rowIndex, columnIndex);
-                  //   console.log("right click heard");
-                }}
-              >
-                {matrix[rowIndex][columnIndex].isVisible
-                  ? matrix[rowIndex][columnIndex].hasBomb
-                    ? "💣"
-                    : "" + matrix[rowIndex][columnIndex].adjacentCount
-                  : matrix[rowIndex][columnIndex].isFlagged
-                  ? "🚩"
-                  : " "}
-              </Button>
-            </Center>
+    <Center>
+      <Center
+        bgColor={"blue.700"}
+        width={"40vw"}
+        borderBottomRadius={10}
+        pb={5}
+      >
+        <Box>
+          {matrix.map((row, rowIndex) => (
+            <Flex key={rowIndex} columns={n} spacing={"5px"}>
+              {row.map((column, columnIndex) => (
+                <Center py={2} key={columnIndex} height={"50px"} width={"50px"}>
+                  <Button
+                    bgColor={
+                      matrix[rowIndex][columnIndex].isVisible
+                        ? matrix[rowIndex][columnIndex].hasBomb
+                          ? "gray.500"
+                          : matrix[rowIndex][columnIndex].adjacentCount === 0
+                          ? "red.300"
+                          : "orange.300"
+                        : "gray.500"
+                    }
+                    color={
+                      matrix[rowIndex][columnIndex].adjacentCount !== 0
+                        ? "blue.700"
+                        : "white"
+                    }
+                    width={"60%"}
+                    isDisabled={matrix[rowIndex][columnIndex].isVisible}
+                    onClick={() => {
+                      updateTile(rowIndex, columnIndex);
+                      if (matrix[rowIndex][columnIndex].hasBomb) {
+                        setAllTilesVisibility(true);
+                      }
+                    }}
+                    onContextMenu={() => {
+                      addFlag(rowIndex, columnIndex);
+                      //   console.log("right click heard");
+                    }}
+                  >
+                    {matrix[rowIndex][columnIndex].isVisible
+                      ? matrix[rowIndex][columnIndex].hasBomb
+                        ? "💣"
+                        : "" + matrix[rowIndex][columnIndex].adjacentCount
+                      : matrix[rowIndex][columnIndex].isFlagged
+                      ? "🚩"
+                      : " "}
+                  </Button>
+                </Center>
+              ))}
+            </Flex>
           ))}
-        </SimpleGrid>
-      ))}
-    </Box>
+        </Box>
+      </Center>
+    </Center>
   );
 };
 
