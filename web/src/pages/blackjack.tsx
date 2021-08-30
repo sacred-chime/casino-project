@@ -362,6 +362,16 @@ const BlackjackBoard: React.FC<BlackjackBoardProps> = ({
                     };
                   });
                   setBetted(() => true);
+                } else {
+                  // IF NOT ENOUGH MONEY OR NO BET
+                  if (data?.me?.money && data?.me?.money < status.bet) {
+                    alert("PLEASE ADD FUNDS.");
+                    return;
+                  }
+                  if (status.bet <= 0) {
+                    alert("PLEASE PLACE BET.");
+                    return;
+                  }
                 }
               }}
             >

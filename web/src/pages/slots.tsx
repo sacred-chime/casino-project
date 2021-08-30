@@ -174,7 +174,6 @@ const Board: React.FC<BoardProps> = ({ symbols }) => {
                   for (let i = 0; i < 15; i++) {
                     newSquares[i] = symbols[getRandomInt(0, symbols.length)];
                   }
-                  console.log(data!.me!.money);
                   values = calculateWinner(newSquares, bet!);
                   setWinnings(() => {
                     return values.winnings;
