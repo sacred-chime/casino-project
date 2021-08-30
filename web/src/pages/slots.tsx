@@ -86,29 +86,14 @@ const Board: React.FC<BoardProps> = ({ symbols }) => {
   const [{ data, fetching }] = useMeQuery();
   const [, changeFunds] = useChangeFundsMutation();
   const [, createBet] = useCreateBetMutation();
-  const [bet, setBet] = useState<number | undefined>();
-  const [winnings, setWinnings] = useState(0);
+  const [bet, setBet] = useState(0);
+  const [message, setMessage] = useState("");
   const [slots, setSlots] = useState<Slots>({
     squares: new Array(15).fill({ value: 0, symbol: " " }),
     colors: new Array(15).fill("white"),
   });
 
   let status;
-  let values = { winner: false, winnings: 0, colors: slots.colors };
-
-  if (values.winner) {
-    status = "Winner!";
-  } else {
-    let phrases = [
-      "Wow you're bad at this",
-      "Better luck next time!",
-      "It's time to stop",
-      "Get help",
-      "Sorry",
-    ];
-    status = phrases[getRandomInt(0, phrases.length)];
-  }
-
   const slotsRows = [];
 
   for (let row = 0; row < 3; row++) {
@@ -152,11 +137,11 @@ const Board: React.FC<BoardProps> = ({ symbols }) => {
               <NumberInput
                 type="number"
                 defaultValue={0}
-                min={1}
+                min={0.1}
                 max={1000000}
                 onChange={(input) => {
                   setBet(() => {
-                    return parseInt(input);
+                    return parseFloat(input);
                   });
                 }}
               >
@@ -170,19 +155,14 @@ const Board: React.FC<BoardProps> = ({ symbols }) => {
             <Center mt={3}>
               <Button
                 onClick={() => {
+                  // generates random symbols for each cell in the slots game
                   let newSquares = new Array<SlotsSymbol>(15);
                   for (let i = 0; i < 15; i++) {
                     newSquares[i] = symbols[getRandomInt(0, symbols.length)];
                   }
-                  values = calculateWinner(newSquares, bet!);
-                  setWinnings(() => {
-                    return values.winnings;
-                  });
+                  let values = calculateWinner(newSquares, bet);
                   let newColors = values.colors;
-                  if (
-                    (data?.me?.money && data!.me!.money < bet!) ||
-                    bet! <= 0
-                  ) {
+                  if ((data?.me?.money && data!.me!.money < bet) || bet <= 0) {
                     alert("Invalid bet amount, please try again.");
                     setSlots(() => {
                       return {
@@ -190,23 +170,36 @@ const Board: React.FC<BoardProps> = ({ symbols }) => {
                         colors: Array(15).fill("white"),
                       };
                     });
-                    setWinnings(0);
                   } else {
-                    changeFunds({
-                      fundDelta: -bet!,
-                    });
+                    // checks if the user has won, if so sets winning message
+                    if (values.winner) {
+                      setMessage(
+                        "Congratulations, you won $" + values.winnings
+                      );
+                    } else {
+                      // if user loses, random lose phrase is set
+                      let phrases = [
+                        "Wow you're bad at this",
+                        "Better luck next time!",
+                        "It's time to stop",
+                        "Get help",
+                        "Sorry",
+                      ];
+                      status = phrases[getRandomInt(0, phrases.length)];
+                      setMessage(status);
+                    }
+                    // updates users money
                     createBet({
                       input: {
                         game: "Slots",
                         wager: bet!,
-                        payout: winnings,
+                        payout: values.winnings,
                       },
                     });
-                    if (winnings > 0) {
-                      changeFunds({
-                        fundDelta: winnings,
-                      });
-                    }
+                    changeFunds({
+                      fundDelta: values.winnings - bet,
+                    });
+                    // displays slots
                     setSlots(() => {
                       return {
                         squares: newSquares,
@@ -220,11 +213,8 @@ const Board: React.FC<BoardProps> = ({ symbols }) => {
               </Button>
             </Center>
             <Center>
-              <Box key="loseMessage" hidden={values.winner} my={"10px"}>
-                {status}
-              </Box>
-              <Box key="winMessage" hidden={!values.winner} my={"10px"}>
-                Congrats, you won ${winnings}!
+              <Box key="message" my={"10px"}>
+                {message}
               </Box>
             </Center>
           </Flex>
@@ -268,10 +258,10 @@ const HowToPlaySlots: React.FC<{}> = ({}) => {
     >
       <Heading fontSize="xl">How to Play</Heading>
       <Text s="10px" mt={4}>
-        Enter the amount you want to bet in the box below. Note: Minimum bet =
-        1, default bet = 1 After entering your bet, simply press the play
-        button! To win, match 5 shapes with the same value to any of the 15
-        patterns below, and win your bet * value of the symbols!
+        Enter the amount you want to bet in the box below. After entering your
+        bet, simply press the play button! To win, match 5 shapes with the same
+        value to any of the 15 patterns below, and win your bet * value of the
+        symbols!
       </Text>
       <Box mt={2}>
         <NextImage
@@ -336,18 +326,26 @@ const SlotsSymbolTable: React.FC<{}> = ({}) => {
 // HELPER FUNCTIONS
 const calculateWinner = (squares: SlotsSymbol[], bet: number) => {
   let colors = new Array<string>(15);
+
+  // values corresponding to value each symbol is worth
   const values = [
     10, 10, 10, 10, 15, 15, 15, 20, 20, 30, 1, 1000, 30, 30, 1000,
   ];
+
+  // initially sets each cell in the slot to have a white background
   for (let i = 0; i < colors.length; i++) {
     colors[i] = "white";
   }
   try {
     let symbolsList = [];
+
+    // assigns symbols to array
     for (let i = 0; i < slotsSymbols().length; i++) {
       symbolsList.push(slotsSymbols()[i].symbol);
     }
     const splitSquares = arrayChunks(squares, 5);
+
+    // loops through all 15 winning patterns
     for (let i = 0; i < lines().length; i++) {
       const [a, b, c, d, e] = lines()[i];
       let ind1 = values[symbolsList.indexOf(squares[a].symbol)];
@@ -356,20 +354,15 @@ const calculateWinner = (squares: SlotsSymbol[], bet: number) => {
       let ind4 = values[symbolsList.indexOf(squares[d].symbol)];
       let ind5 = values[symbolsList.indexOf(squares[e].symbol)];
 
+      // if the value at each indice matches the other 4 indices, the user has won. sets the background color of winning cells to green
       if (ind1 === ind2 && ind2 === ind3 && ind3 === ind4 && ind4 === ind5) {
         colors[a] = "mediumseagreen";
         colors[b] = "mediumseagreen";
         colors[c] = "mediumseagreen";
         colors[d] = "mediumseagreen";
         colors[e] = "mediumseagreen";
-        console.log(
-          "squares: ",
-          squares,
-          "colors: ",
-          colors,
-          "splitSquares: ",
-          splitSquares
-        );
+
+        // winner is true, user has won their bet * value of symbol
         return {
           winner: true,
           winnings: ind1 * bet,
@@ -377,6 +370,7 @@ const calculateWinner = (squares: SlotsSymbol[], bet: number) => {
         };
       }
     }
+    // else user has lost, winner is false and they have no winnings
     return { winner: false, winnings: 0, colors: colors };
   } catch {
     return { winner: false, winnings: 0, colors: colors };
