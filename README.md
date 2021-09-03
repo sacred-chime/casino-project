@@ -1,4 +1,5 @@
 # Group C(asino)
+We created an online casino. It houses 4 playable games: Blackjack, Slots, Craps, and Minesweeper. All of the games revolve around the player’s casino wallet, adding or subtracting based on wins or losses. In addition, all bets are stored in a database, for future reference. We also have a dedicated payment landing page, for future implementation with payment processors. 
 
 ## Members:
 Connor Strohecker - cms668@drexel.edu  
